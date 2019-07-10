@@ -59,7 +59,7 @@ def login(username, password):
 
         # save cookie to redis
         red_bin.set(name='webap_cookie_%s' %
-                    username, value=pickle.dumps(session.cookies))
+                    username, value=pickle.dumps(session.cookies), ex=config.CACHE_WEBAP_COOKIE_EXPIRE_TIME)
 
         return error_code.CACHE_WENAP_LOGIN_SUCCESS
 
