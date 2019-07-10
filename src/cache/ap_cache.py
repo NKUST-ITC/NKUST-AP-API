@@ -8,6 +8,7 @@ from crawler import webap_crawler
 from utils import error_code
 from utils import config
 from utils.config import REDIS_URL
+from cache import parse
 
 red_string = redis.StrictRedis.from_url(
     url=REDIS_URL, db=4, charset="utf-8", decode_responses=True)
@@ -71,3 +72,87 @@ def login(username, password):
         return error_code.CACHE_WEBAP_ERROR
 
     return error_code.CACHE_WEBAP_ERROR
+
+
+def user_info(username, password):
+    """get user info 
+
+    Args:
+        username ([str]): NKUST webap username
+        password ([str]): NKUST webap password
+
+    Returns:
+        [dict]: user info
+
+        in any error
+        [int]: CACHE_AP_QUERY_USERINFO_ERROR
+               CACHE_WEBAP_LOGIN_FAIL
+               CACHE_WEBAP_SERVER_ERROR
+               CACHE_WEBAP_ERROR
+               USER_INFO_PARSE_ERROR
+               USER_INFO_ERROR
+    """
+    # check login
+    login_status = login(username=username, password=password)
+
+    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
+        res = cache_ap_query(username=username, qid='ag003')
+        if res == False:
+            return error_code.CACHE_AP_QUERY_USERINFO_ERROR
+        user_info_parse = parse.userinfo(html=res)
+        if user_info_parse == False:
+            return error_code.USER_INFO_PARSE_ERROR
+        return user_info_parse
+    else:
+        return login_status
+    return error_code.USER_INFO_ERROR
+
+
+def cache_ap_query(username, qid,
+                   expire_time=config.CACHE_WEBAP_QUERY_DEFAULT_EXPIRE_TIME,
+                   **kwargs):
+    """cache query 
+    save html cache to redis 
+
+    Args:
+        username ([str]): use to get redis cache or set.
+        qid ([str]): NKUST query url qrgs
+        expire_time ([int]): Defaults to config.CACHE_WEBAP_QUERY_DEFAULT_EXPIRE_TIME.
+
+        kwargs:
+            (e.g.)
+            cache_ap_query(username, qid='ag008',
+                           yms='107,2', arg01='107', arg02='2')
+
+            post data will = {
+                'yms':'107,2',
+                'arg01':'107',
+                'arg02':'2'
+            }
+
+    Returns:
+        [str]: html.
+        [bool]: something erorr False.
+    """
+    if not red_bin.exists('webap_cookie_%s' % username):
+        return error_code.CACHE_AP_QUERY_COOKIE_ERROR
+
+    # webap_query_1105133333_ag008_107,2_...
+    redis_name = "webap_query_{username}_{qid}".format(
+        username=username, qid=qid)+'_'.join(map(str, kwargs.values()))
+    # return cache (html)
+    if red_string.exists(redis_name):
+        return red_string.get(redis_name)
+
+    # load redis cookie
+    session = requests.session()
+    session.cookies = pickle.loads(red_bin.get('webap_cookie_%s' % username))
+
+    res = webap_crawler.query(session=session, qid=qid, **kwargs)
+
+    if res != False:
+        if res.status_code == 200:
+            red_string.set(name=redis_name, value=res.text, ex=expire_time)
+
+            return res.text
+    return False

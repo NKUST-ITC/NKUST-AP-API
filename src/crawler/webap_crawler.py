@@ -24,7 +24,7 @@ QUERY_TIMEOUT = config.WEPAP_QUERY_TIMEOUT
 
 
 def login(session, username, password, timeout=LOGIN_TIMEOUT):
-    """[summary]
+    """login to webap
 
     Args:
         session ([request.session]): requests session
@@ -69,3 +69,37 @@ def login(session, username, password, timeout=LOGIN_TIMEOUT):
         return error_code.WEBAP_ERROR
 
     return error_code.WEBAP_ERROR
+
+
+def query(session, qid, **kwargs):
+    """AP system query
+
+    Args:
+        session ([requests.session]): after load cookies
+        qid ([str]): url qid
+
+        kwargs:
+            (e.g.)
+            ag_query(session=session, qid='ag008',
+                           yms='107,2', arg01='107', arg02='2')
+
+            post data will = {
+                'yms':'107,2',
+                'arg01':'107',
+                'arg02':'2'
+            }
+
+    Returns:
+        [requests.models.Response]: requests response
+
+        [bool]: something error will return False
+    """
+
+    try:
+        req = session.post(AP_QUERY_URL % (qid[:2], qid),
+                           data=kwargs)
+        return req
+    except:
+        return False
+
+    return False
