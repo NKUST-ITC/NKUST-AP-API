@@ -45,8 +45,6 @@ def login(username, password):
 
     session = requests.session()
 
-    # without check ssl verify
-    session.verify = False
     login_status = webap_crawler.login(
         session=session, username=username, password=password)
 
