@@ -59,3 +59,24 @@ def semesters(html):
     data['data'] = list(options)
 
     return data
+
+
+def midterm_alert(html):
+    root = etree.HTML(html)
+    td = root.xpath("/html/body/form/table[1]//tr[@bgcolor='#FFFcee']//td")
+
+    td = [w.text.replace('\xa0', '') for w in td]
+    split_td = map(lambda x: td[int(x)-8: int(x)], range(8, len(td)+8, 8))
+    raw_alert = map(lambda x: {'entry': x[0],
+                               'className': x[1],
+                               'title': x[2],
+                               'group': x[3],
+                               'instructors': x[4],
+                               'reason': x[6],
+                               'remark': x[7]
+                               } if x[5] == "是" else None, split_td)
+    mid_alert_list = [w for w in raw_alert if w != None]
+    res = {
+        "courses": mid_alert_list
+    }
+    return res

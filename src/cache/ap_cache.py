@@ -145,6 +145,39 @@ def semesters():
     return error_code.WEBAP_ERROR
 
 
+def midterm_alerts(username, password, year, semester):
+    """Retrun this semester midterm alerts list
+
+    Args:
+        username ([str]): NKUST webap username
+        password ([str]): NKUST webap password
+        year ([str]): 107  108 .. term year
+        semester ([str]): semester
+
+    Returns:
+        [dict]: midterm alerts
+
+        in any error
+        [int]: CACHE_AP_QUERY_USERINFO_ERROR
+               CACHE_WEBAP_LOGIN_FAIL
+               CACHE_WEBAP_SERVER_ERROR
+               CACHE_WEBAP_ERROR
+               MIDTERM_ALERTS_ERROR
+    """
+    login_status = login(username=username, password=password)
+
+    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
+        midterm_alerts_html = cache_ap_query(username=username,
+                                             qid='ag009', arg01=year, arg02=semester)
+        if midterm_alerts_html != False:
+            if isinstance(midterm_alerts_html, str):
+                res = parse.midterm_alert(midterm_alerts_html)
+                return res
+    else:
+        return login_status
+    return error_code.MIDTERM_ALERTS_ERROR
+
+
 def cache_ap_query(username, qid,
                    expire_time=config.CACHE_WEBAP_QUERY_DEFAULT_EXPIRE_TIME,
                    **kwargs):
