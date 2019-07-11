@@ -1,6 +1,6 @@
 import hashlib
 import pickle
-
+import json
 import redis
 import requests
 
@@ -104,6 +104,45 @@ def user_info(username, password):
     else:
         return login_status
     return error_code.USER_INFO_ERROR
+
+
+def semesters():
+    """/user/semesters
+    In this function, without use cache_ap_query
+    use webap_crawler.query and use GUEST account.
+
+    Returns:
+        [str]: result type is json 
+            Why don't use dict?
+            redis can't save dict :P
+
+        error:
+            [int] 
+                SEMESTERS_QUERY_ERROR
+                WEBAP_ERROR
+
+    """
+    if red_string.exists('semesters'):
+        return red_string.get('semesters')
+    session = requests.session()
+    login_status = webap_crawler.login(session=session,
+                                       username=config.AP_GUEST_ACCOUNT,
+                                       password=config.AP_GUEST_PASSWORD)
+
+    if login_status == error_code.WENAP_LOGIN_SUCCESS:
+        query_res = webap_crawler.query(session=session, qid='ag304_01')
+        if query_res == False:
+            return error_code.SEMESTERS_QUERY_ERROR
+        elif isinstance(query_res, requests.models.Response):
+            semesters_data = json.dumps(parse.semesters(query_res.text))
+            red_string.set(name='semesters',
+                           value=semesters_data,
+                           ex=config.CACHE_SEMESTERS_EXPIRE_TIME)
+            return semesters_data
+    else:
+        return error_code.WEBAP_ERROR
+
+    return error_code.WEBAP_ERROR
 
 
 def cache_ap_query(username, qid,

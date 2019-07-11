@@ -31,3 +31,29 @@ class userInfo:
         else:
             raise falcon.HTTPInternalServerError(
                 description='something error ?')
+
+
+class userSemesters:
+
+    def on_get(self, req, resp):
+
+        semesters_data = ap_cache.semesters()
+        if isinstance(semesters_data, str):
+            resp.body = semesters_data
+            resp.media = falcon.MEDIA_JSON
+            resp.status = falcon.HTTP_200
+            return True
+        # error handle
+        elif isinstance(semesters_data, int):
+            if semesters_data == error_code.SEMESTERS_QUERY_ERROR:
+                resp.status = falcon.HTTP_500
+                raise falcon.HTTPInternalServerError(
+                    description="SEMESTERS QUERY ERROR")
+
+            elif semesters_data == error_code.WEBAP_ERROR:
+                resp.status = falcon.HTTP_503
+                raise falcon.HTTPServiceUnavailable()
+
+        else:
+            raise falcon.HTTPInternalServerError(
+                description='something error ?')

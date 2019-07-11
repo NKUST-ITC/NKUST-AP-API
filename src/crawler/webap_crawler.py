@@ -13,12 +13,6 @@ AP_LOGIN_URL = AP_BASE_URL + "/nkust/perchk.jsp"
 #  first: prefix of qid, second: qid
 AP_QUERY_URL = AP_BASE_URL + "/nkust/%s_pro/%s.jsp"
 
-#: AP guest account
-AP_GUEST_ACCOUNT = "guest"
-
-#: AP guest password
-AP_GUEST_PASSWORD = "123"
-
 #: Query timeout
 QUERY_TIMEOUT = config.WEPAP_QUERY_TIMEOUT
 
