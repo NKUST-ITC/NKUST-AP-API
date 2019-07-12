@@ -153,7 +153,6 @@ def coursetable(html):
     timecode_list_xpath = root.xpath(
         '/html/body/table[@bordercolor="#999999"]//td[@bgcolor="#ebebeb"]/font')
 
-    result_time_code = []
     week_name = ['Monday', 'Tuesday', 'Wednesday',
                  'Thursday', 'Friday', 'Saturday', 'Sunday']
     date_list = []
