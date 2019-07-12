@@ -25,7 +25,7 @@ def semesters(html):
     """return semesters json
 
     Args:
-        html ([str]): ag_304_1 html 
+        html ([str]): ag_304_1 html
 
     Returns:
         [dict]: result
@@ -79,4 +79,32 @@ def midterm_alert(html):
     res = {
         "courses": mid_alert_list
     }
+    return res
+
+
+def scores(html):
+    root = etree.HTML(html)
+
+    td_etree = root.xpath("//tr[@bgcolor='#FFFcee']//td")
+
+    raw_td = [td.text.replace('\xa0', '') for td in td_etree]
+
+    split_td = map(lambda x: raw_td[int(
+        x)-9: int(x)], range(9, len(raw_td)+9, 9))
+
+    scores_list = [{
+        'title': i[1],
+        'units': i[2],
+        'hours': i[3],
+        'required': i[4],
+        'at': i[5],
+        'middleScore': i[6],
+        'finalScore': i[7],
+        "remark": i[8]
+    } for i in split_td]
+
+    res = {
+        "scores": scores_list
+    }
+
     return res

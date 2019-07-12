@@ -87,3 +87,33 @@ class userMidtermAlerts:
         else:
             raise falcon.HTTPInternalServerError(
                 description='something error ?')
+
+
+class userScore:
+
+    def on_get(self, req, resp):
+        # jwt payload
+        payload = req.context['user']['user']
+        if req.get_param('year') == None and req.get_param('value') == None:
+            raise falcon.HTTPBadRequest(description='params error')
+
+        if len(req.get_param('year')) > 4 or len(req.get_param('value')) > 2:
+            raise falcon.HTTPBadRequest(description='params error')
+
+        score_dict = ap_cache.score(
+            username=payload['username'], password=payload['password'],
+            year=req.get_param('year'), semester=req.get_param('value'))
+
+        if isinstance(score_dict, dict):
+            resp.media = score_dict
+            resp.status = falcon.HTTP_200
+            return True
+        elif score_dict == error_code.CACHE_WEBAP_SERVER_ERROR:
+            resp.status = falcon.HTTP_503
+            raise falcon.HTTPServiceUnavailable()
+        elif score_dict == error_code.CACHE_WEBAP_LOGIN_FAIL:
+            resp.status = falcon.HTTP_401
+            return True
+        else:
+            raise falcon.HTTPInternalServerError(
+                description='something error ?')
