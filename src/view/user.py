@@ -117,3 +117,39 @@ class userScore:
         else:
             raise falcon.HTTPInternalServerError(
                 description='something error ?')
+
+
+class userCourseTable:
+
+    def on_get(self, req, resp):
+        # jwt payload
+        payload = req.context['user']['user']
+        if req.get_param('year') == None and req.get_param('value') == None:
+            raise falcon.HTTPBadRequest(description='params error')
+
+        if len(req.get_param('year')) > 4 or len(req.get_param('value')) > 2:
+            raise falcon.HTTPBadRequest(description='params error')
+
+        course_dict = ap_cache.coursetable(
+            username=payload['username'], password=payload['password'],
+            year=req.get_param('year'), semester=req.get_param('value'))
+
+        if isinstance(course_dict, str):
+            resp.body = course_dict
+            resp.media = falcon.MEDIA_JSON
+            resp.status = falcon.HTTP_200
+            return True
+        # error handle
+        elif isinstance(course_dict, int):
+            if course_dict == error_code.COURSETABLE_QUERY_ERROR:
+                resp.status = falcon.HTTP_500
+                raise falcon.HTTPInternalServerError(
+                    description="COURSETABLE QUERY ERROR")
+
+            elif course_dict == error_code.WEBAP_ERROR:
+                resp.status = falcon.HTTP_503
+                raise falcon.HTTPServiceUnavailable()
+
+        else:
+            raise falcon.HTTPInternalServerError(
+                description='something error ?')

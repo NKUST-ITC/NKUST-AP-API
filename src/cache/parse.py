@@ -108,3 +108,89 @@ def scores(html):
     }
 
     return res
+
+
+def coursetable(html):
+    print(html)
+    # <br> If veryyyy difficult to handle in lxml so.. replace it!
+    html = html.replace('<br>', ',')
+
+    result = {
+        "courses": [],
+        "coursetable": {
+            "timeCodes": []
+        }
+    }
+
+    root = etree.HTML(html)
+    td = root.xpath('/html/body/form/table//font')
+    corses_list = [x.text.replace('\xa0', '') for x in td][11::]
+    # pylint: disable=unsubscriptable-object
+    corses_list_split = map(lambda x: corses_list[int(
+        x)-11: int(x)], range(11, len(corses_list)+11, 11))
+
+    result_corses = [{"code": x[0],
+                      "title": x[1],
+                      "className": x[2],
+                      "group": x[3],
+                      "units": x[4],
+                      "hours": x[5],
+                      "required": x[6],
+                      "at": x[7],
+                      "times": x[8],
+                      "location": {"room": x[10]}, "instructors": x[9].split(',')} for x in corses_list_split]
+
+    course_table_xpath = root.xpath(
+        '/html/body/table[@bordercolor="#999999"]//td[@bgcolor="#FFFcee"]')
+
+    course_table = [corse.text.replace('\xa0', '')
+                    for corse in course_table_xpath]
+
+    # 2d arrary 7*15(days)
+    corses_list = list(map(lambda x: course_table[int(
+        x)-7: int(x)], range(7, len(course_table)+7, 7)))
+
+    timecode_list_xpath = root.xpath(
+        '/html/body/table[@bordercolor="#999999"]//td[@bgcolor="#ebebeb"]/font')
+
+    result_time_code = []
+    week_name = ['Monday', 'Tuesday', 'Wednesday',
+                 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    date_list = []
+    for i in timecode_list_xpath:
+        temp = i.text.split(',')[1:3]
+        result['coursetable']['timeCodes'].append(temp[0])
+        cource_time_list = temp[1].split('-')
+        start_time = cource_time_list[0][:2]+":"+cource_time_list[0][2:]
+        end_time = cource_time_list[1][:2]+":"+cource_time_list[1][2:]
+        date_list.append({
+            'startTime': start_time,
+            'endTime': end_time,
+            'section': temp[0]
+        })
+
+    # 7 day for week
+    for day_count in range(7):
+
+        temp_cource_per_day = []
+        for lession_count in range(len(corses_list)):
+            if len(corses_list[lession_count][day_count]) > 0:
+                course_split = corses_list[lession_count][day_count].split(',')
+                temp_cource_per_day.append({
+                    'title': course_split[0],
+                    'date': date_list[day_count],
+                    'location': {
+                        'room': course_split[-2]
+                    },
+                    'instructors': course_split[1:-2]
+                })
+
+        if temp_cource_per_day == []:
+            continue
+        result['coursetable'].update({
+            week_name[day_count]: temp_cource_per_day
+        })
+
+    result['courses'] = result_corses
+
+    return result

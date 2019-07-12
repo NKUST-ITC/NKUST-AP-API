@@ -211,6 +211,53 @@ def score(username, password, year, semester):
     return error_code.SCORES_ERROR
 
 
+def coursetable(username, password, year, semester):
+    """Retrun course table. 
+
+    This function not save html in redis, is json(str).
+    Because parse course table is too ...QQ
+    I like Beautifulsoup. ( ;u; )
+
+    Args:
+        username ([str]): NKUST webap username
+        password ([str]): NKUST webap password
+        year ([str]): 107  108 .. term year
+        semester ([str]): semester
+
+    Returns:
+        [str]: course table json (str)
+
+        in any error
+        [int]: COURSETABLE_QUERY_ERROR
+               WEBAP_ERROR
+    """
+    login_status = login(username=username, password=password)
+
+    if red_string.exists('coursetable_%s_%s_%s' % (username, year, semester)):
+        return red_string.get('coursetable_%s_%s_%s' % (username, year, semester))
+
+    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
+        session = requests.session()
+        # load webap cookie
+        session.cookies = pickle.loads(
+            red_bin.get('webap_cookie_%s' % username))
+
+        query_res = webap_crawler.query(
+            session=session, qid='ag222', arg01=year, arg02=semester)
+        if query_res == False:
+            return error_code.COURSETABLE_QUERY_ERROR
+        elif isinstance(query_res, requests.models.Response):
+            coursetable_data = json.dumps(parse.coursetable(query_res.text))
+            red_string.set(name='coursetable_%s_%s_%s' % (username, year, semester),
+                           value=coursetable_data,
+                           ex=config.CACHE_COURSETABLE_EXPIRE_TIME)
+            return coursetable_data
+    else:
+        return error_code.COURSETABLE_QUERY_ERROR
+
+    return error_code.WEBAP_ERROR
+
+
 def cache_ap_query(username, qid,
                    expire_time=config.CACHE_WEBAP_QUERY_DEFAULT_EXPIRE_TIME,
                    **kwargs):
