@@ -335,6 +335,49 @@ def cache_graduation_threshold(username, password):
     return error_code.GRADUATION_ERROR
 
 
+def room_list(campus):
+    """/user/room/list
+    campus
+    1=建工/2=燕巢/3=第一/4=楠梓/5=旗津
+    get campus room list 
+    In this function, without use cache_ap_query
+    use webap_crawler.query and use GUEST account.
+
+    Returns:
+        [str]: result type is json
+
+        error:
+            [int]
+                ROOM_LIST_ERROR
+                WEBAP_ERROR
+
+    """
+    if red_string.exists('campus_%s' % campus):
+        return red_string.get('campus_%s' % campus)
+
+    session = requests.session()
+    login_status = webap_crawler.login(session=session,
+                                       username=config.AP_GUEST_ACCOUNT,
+                                       password=config.AP_GUEST_PASSWORD)
+
+    if login_status == error_code.WENAP_LOGIN_SUCCESS:
+        query_res = webap_crawler.query(
+            session=session, qid='ag302_01', cmp_area_id=campus)
+        if query_res == False:
+            return error_code.ROOM_LIST_ERROR
+
+        elif isinstance(query_res, requests.models.Response):
+            room_list_data = json.dumps(parse.room_list(query_res.text))
+            red_string.set(name='campus_%s' % campus,
+                           value=room_list_data,
+                           ex=config.CACHE_SEMESTERS_EXPIRE_TIME)
+            return room_list_data
+    else:
+        return error_code.WEBAP_ERROR
+
+    return error_code.WEBAP_ERROR
+
+
 def cache_ap_query(username, qid,
                    expire_time=config.CACHE_WEBAP_QUERY_DEFAULT_EXPIRE_TIME,
                    **kwargs):

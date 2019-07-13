@@ -247,3 +247,16 @@ def graduation(html):
     result['data']['id'] = user_data[1].text
 
     return result
+
+
+def room_list(html):
+    result = {
+        "data": []
+    }
+
+    root = etree.HTML(html)
+    room_list = [{'roomName': i.text,
+                  'roomId': i.get('value')} for i in root.xpath(
+        '//select[@name="room_id"]/option[@value!=""]')]
+    result['data'] = room_list
+    return result

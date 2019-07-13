@@ -213,3 +213,34 @@ class userGraduation:
         else:
             raise falcon.HTTPInternalServerError(
                 description='something error ?')
+
+
+class userRoomList:
+
+    def on_get(self, req, resp):
+
+        if len(req.get_param('campus')) > 1:
+            raise falcon.HTTPBadRequest(description='params error')
+
+        campus_room_list_data = ap_cache.room_list(
+            campus=req.get_param('campus'))
+
+        if isinstance(campus_room_list_data, str):
+            resp.body = campus_room_list_data
+            resp.media = falcon.MEDIA_JSON
+            resp.status = falcon.HTTP_200
+            return True
+        # error handle
+        elif isinstance(campus_room_list_data, int):
+            if campus_room_list_data == error_code.ROOM_LIST_ERROR:
+                resp.status = falcon.HTTP_500
+                raise falcon.HTTPInternalServerError(
+                    description="ROOM LIST QUERY ERROR")
+
+            elif campus_room_list_data == error_code.WEBAP_ERROR:
+                resp.status = falcon.HTTP_503
+                raise falcon.HTTPServiceUnavailable()
+
+        else:
+            raise falcon.HTTPInternalServerError(
+                description='something error ?')
