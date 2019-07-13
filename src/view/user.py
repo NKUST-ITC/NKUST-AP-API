@@ -183,3 +183,33 @@ class userReward:
         else:
             raise falcon.HTTPInternalServerError(
                 description='something error ?')
+
+
+class userGraduation:
+
+    def on_get(self, req, resp):
+        # jwt payload
+        payload = req.context['user']['user']
+
+        graduation_data = ap_cache.cache_graduation_threshold(
+            username=payload['username'], password=payload['password'])
+
+        if isinstance(graduation_data, str):
+            resp.body = graduation_data
+            resp.media = falcon.MEDIA_JSON
+            resp.status = falcon.HTTP_200
+            return True
+        # error handle
+        elif isinstance(graduation_data, int):
+            if graduation_data == error_code.GRADUATION_ERROR:
+                resp.status = falcon.HTTP_500
+                raise falcon.HTTPInternalServerError(
+                    description="GRADUATION QUERY ERROR")
+
+            elif graduation_data == error_code.CACHE_WEBAP_ERROR:
+                resp.status = falcon.HTTP_503
+                raise falcon.HTTPServiceUnavailable()
+
+        else:
+            raise falcon.HTTPInternalServerError(
+                description='something error ?')

@@ -65,6 +65,37 @@ def login(session, username, password, timeout=LOGIN_TIMEOUT):
     return error_code.WEBAP_ERROR
 
 
+def graduation_threshold(session):
+    """get graduation threshold
+        url : "/user/graduation-threshold"
+
+    Args:
+        session ([requests.session]): must be login webap!
+
+    Returns:
+        [requests.models.Response]: requests response
+        other error will return False
+    """
+
+    # post it, it will return Aength.kuas.edu.tw cookie
+    Aength_login = session.post('https://webap.nkust.edu.tw/nkust/fnc.jsp',
+                                data={'fncid': 'AG635'})
+    # get post data
+    try:
+        root = etree.HTML(Aength_login.text)
+        term_form_xpath = root.xpath('//input[@type="hidden"]')
+        term_form = {i.values()[1]: i.values()[-1] for i in term_form_xpath}
+    except:
+        return False
+
+    # final post
+    query_url = 'http://Aength.kuas.edu.tw/AUPersonQ.aspx'
+
+    res = session.post(url=query_url, data=term_form)
+
+    return res
+
+
 def query(session, qid, **kwargs):
     """AP system query
 

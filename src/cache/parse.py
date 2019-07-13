@@ -219,3 +219,31 @@ def reward(html):
     result['data'] = result_data
 
     return result
+
+
+def graduation(html):
+    result = {
+        "data": {
+            "name": "",
+            "className": "",
+            "id": ""
+        },
+        "englishPass": "",
+        "englishClassPass": ""
+    }
+
+    root = etree.HTML(html)
+    pass_data = root.xpath('//div[@class="panel-body"]/span')
+    if len(pass_data) < 2:
+        return False
+    result['englishPass'] = pass_data[0].text
+    result['englishClassPass'] = pass_data[1].text
+
+    user_data = root.xpath('//div[@class="panel-body"]/table/tr/td/span')
+    if len(user_data) < 3:
+        return False
+    result['data']['name'] = user_data[2].text
+    result['data']['className'] = user_data[0].text
+    result['data']['id'] = user_data[1].text
+
+    return result

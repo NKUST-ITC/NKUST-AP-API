@@ -73,7 +73,7 @@ def login(username, password):
 
 
 def user_info(username, password):
-    """get user info 
+    """get user info
 
     Args:
         username ([str]): NKUST webap username
@@ -112,12 +112,12 @@ def semesters():
     use webap_crawler.query and use GUEST account.
 
     Returns:
-        [str]: result type is json 
+        [str]: result type is json
             Why don't use dict?
             redis can't save dict :P
 
         error:
-            [int] 
+            [int]
                 SEMESTERS_QUERY_ERROR
                 WEBAP_ERROR
 
@@ -179,7 +179,7 @@ def midterm_alerts(username, password, year, semester):
 
 
 def score(username, password, year, semester):
-    """Retrun this semester score. 
+    """Retrun this semester score.
 
     Args:
         username ([str]): NKUST webap username
@@ -212,7 +212,7 @@ def score(username, password, year, semester):
 
 
 def coursetable(username, password, year, semester):
-    """Retrun course table. 
+    """Retrun course table.
 
     This function not save html in redis, is json(str).
     Because parse course table is too ...QQ
@@ -259,7 +259,7 @@ def coursetable(username, password, year, semester):
 
 
 def reward(username, password, year, semester):
-    """Retrun this semester reward. 
+    """Retrun this semester reward.
 
     Args:
         username ([str]): NKUST webap username
@@ -268,11 +268,10 @@ def reward(username, password, year, semester):
         semester ([str]): semester
 
     Returns:
-        [dict]: reward dict 
+        [dict]: reward dict
 
         in any error
-        [int]: CACHE_AP_QUERY_USERINFO_ERROR
-               CACHE_WEBAP_LOGIN_FAIL
+        [int]: CACHE_WEBAP_LOGIN_FAIL
                CACHE_WEBAP_SERVER_ERROR
                CACHE_WEBAP_ERROR
                REWARD_ERROR
@@ -289,6 +288,51 @@ def reward(username, password, year, semester):
     else:
         return login_status
     return error_code.REWARD_ERROR
+
+
+def cache_graduation_threshold(username, password):
+    """Retrun  graduation threshold.
+
+
+    Args:
+        username ([str]): NKUST webap username
+        password ([str]): NKUST webap password
+
+    Returns:
+        [str]: json(str)
+
+        in any error
+        [int]: CACHE_WEBAP_LOGIN_FAIL
+               CACHE_WEBAP_SERVER_ERROR
+               CACHE_WEBAP_ERROR
+               GRADUATION_ERROR
+    """
+    # graduation_username
+    if red_string.exists('graduation_%s' % username):
+        return red_string.get(('graduation_%s' % username))
+
+    login_status = login(username=username, password=password)
+    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
+
+        # load user cookie
+        session = requests.session()
+        session.cookies = pickle.loads(
+            red_bin.get('webap_cookie_%s' % username))
+
+        graduation_req = webap_crawler.graduation_threshold(session=session)
+
+        if graduation_req != False:
+            if isinstance(graduation_req.text, str):
+                res = parse.graduation(graduation_req.text)
+                if res != False:
+                    dump = json.dumps(res, ensure_ascii=False)
+                    red_string.set(name='graduation_%s' % username,
+                                   value=dump, ex=config.CACHE_GRADUTION_EXPIRE_TIME)
+
+                    return dump
+    else:
+        return login_status
+    return error_code.GRADUATION_ERROR
 
 
 def cache_ap_query(username, qid,
