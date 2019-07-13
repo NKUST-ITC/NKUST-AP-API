@@ -963,12 +963,6 @@ paths:
         - JSON-Web-Token: []
       parameters: 
       - in: query
-        name: "campus"
-        description: "1=建工  /2=燕巢 /3=第一 /4=楠梓 /5=旗津 "
-        schema:
-            type: integer
-            format: int64
-      - in: query
         name: "roomId"
         description: "like A001..."
         schema:
