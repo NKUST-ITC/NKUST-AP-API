@@ -50,7 +50,7 @@ class userSemesters:
                 raise falcon.HTTPInternalServerError(
                     description="SEMESTERS QUERY ERROR")
 
-            elif semesters_data == error_code.WEBAP_ERROR:
+            elif semesters_data == error_code.CACHE_WEBAP_ERROR:
                 resp.status = falcon.HTTP_503
                 raise falcon.HTTPServiceUnavailable()
 
@@ -237,7 +237,7 @@ class userRoomList:
                 raise falcon.HTTPInternalServerError(
                     description="ROOM LIST QUERY ERROR")
 
-            elif campus_room_list_data == error_code.WEBAP_ERROR:
+            elif campus_room_list_data == error_code.CACHE_WEBAP_ERROR:
                 resp.status = falcon.HTTP_503
                 raise falcon.HTTPServiceUnavailable()
 

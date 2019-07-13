@@ -119,17 +119,22 @@ def semesters():
         error:
             [int]
                 SEMESTERS_QUERY_ERROR
-                WEBAP_ERROR
+                CACHE_WEBAP_LOGIN_FAIL (111)
+                CACHE_WEBAP_SERVER_ERROR (112)
+                CACHE_WEBAP_ERROR (113)
 
     """
     if red_string.exists('semesters'):
         return red_string.get('semesters')
-    session = requests.session()
-    login_status = webap_crawler.login(session=session,
-                                       username=config.AP_GUEST_ACCOUNT,
-                                       password=config.AP_GUEST_PASSWORD)
 
-    if login_status == error_code.WENAP_LOGIN_SUCCESS:
+    login_status = login(username=config.AP_GUEST_ACCOUNT,
+                         password=config.AP_GUEST_PASSWORD)
+
+    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
+        session = requests.session()
+        # load guest cookie
+        session.cookies = pickle.loads(red_bin.get(
+            'webap_cookie_%s' % config.AP_GUEST_ACCOUNT))
         query_res = webap_crawler.query(session=session, qid='ag304_01')
         if query_res == False:
             return error_code.SEMESTERS_QUERY_ERROR
@@ -140,9 +145,9 @@ def semesters():
                            ex=config.CACHE_SEMESTERS_EXPIRE_TIME)
             return semesters_data
     else:
-        return error_code.WEBAP_ERROR
+        return error_code.CACHE_WEBAP_ERROR
 
-    return error_code.WEBAP_ERROR
+    return error_code.CACHE_WEBAP_ERROR
 
 
 def midterm_alerts(username, password, year, semester):
@@ -349,18 +354,22 @@ def room_list(campus):
         error:
             [int]
                 ROOM_LIST_ERROR
-                WEBAP_ERROR
+                CACHE_WEBAP_LOGIN_FAIL (111)
+                CACHE_WEBAP_SERVER_ERROR (112)
+                CACHE_WEBAP_ERROR (113)
 
     """
     if red_string.exists('campus_%s' % campus):
         return red_string.get('campus_%s' % campus)
 
-    session = requests.session()
-    login_status = webap_crawler.login(session=session,
-                                       username=config.AP_GUEST_ACCOUNT,
-                                       password=config.AP_GUEST_PASSWORD)
+    login_status = login(username=config.AP_GUEST_ACCOUNT,
+                         password=config.AP_GUEST_PASSWORD)
 
-    if login_status == error_code.WENAP_LOGIN_SUCCESS:
+    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
+        session = requests.session()
+        # load guest cookie
+        session.cookies = pickle.loads(red_bin.get(
+            'webap_cookie_%s' % config.AP_GUEST_ACCOUNT))
         query_res = webap_crawler.query(
             session=session, qid='ag302_01', cmp_area_id=campus)
         if query_res == False:
@@ -373,9 +382,9 @@ def room_list(campus):
                            ex=config.CACHE_SEMESTERS_EXPIRE_TIME)
             return room_list_data
     else:
-        return error_code.WEBAP_ERROR
+        return error_code.CACHE_WEBAP_ERROR
 
-    return error_code.WEBAP_ERROR
+    return error_code.CACHE_WEBAP_ERROR
 
 
 def cache_ap_query(username, qid,
