@@ -51,32 +51,7 @@ paths:
           description: Username or password is incorrect
         504:
           description: All school server is not alive
-    delete:
-      tags:
-      - "Authentication"
-      summary: delete this token
-      responses:
-        205:
-          description: Logout sucess and client should reset content
-        400:
-          description: Bad Request
-        401:
-          description: Username or password is incorrect
-        504:
-          description: All school server is not alive
-  /oauth/token/all:
-    delete:
-      tags:
-      - "Authentication"
-      summary: delete all token
-      responses:
-        205:
-          description: Logout sucess and client should reset content
-        400:
-          description: Bad Request
-        401:
-          description: Username or password is incorrect
-          
+
   /server/info:
     get:
       tags:
