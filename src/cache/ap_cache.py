@@ -72,37 +72,32 @@ def login(username, password):
     return error_code.CACHE_WEBAP_ERROR
 
 
-def user_info(username, password):
-    """get user info
+def user_info(username):
+    """After use webap_login_cache_required.
+    Get user info.
 
     Args:
         username ([str]): NKUST webap username
-        password ([str]): NKUST webap password
 
     Returns:
         [dict]: user info
 
         in any error
         [int]: CACHE_AP_QUERY_USERINFO_ERROR
-               CACHE_WEBAP_LOGIN_FAIL
-               CACHE_WEBAP_SERVER_ERROR
-               CACHE_WEBAP_ERROR
                USER_INFO_PARSE_ERROR
                USER_INFO_ERROR
     """
     # check login
-    login_status = login(username=username, password=password)
 
-    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
-        res = cache_ap_query(username=username, qid='ag003')
-        if res == False:
-            return error_code.CACHE_AP_QUERY_USERINFO_ERROR
-        user_info_parse = parse.userinfo(html=res)
-        if user_info_parse == False:
-            return error_code.USER_INFO_PARSE_ERROR
-        return user_info_parse
+    res = cache_ap_query(username=username, qid='ag003')
+    if res == False:
+        return error_code.CACHE_AP_QUERY_USERINFO_ERROR
+    user_info_parse = parse.userinfo(html=res)
+    if user_info_parse == False:
+        return error_code.USER_INFO_PARSE_ERROR
     else:
-        return login_status
+        return user_info_parse
+
     return error_code.USER_INFO_ERROR
 
 
@@ -150,12 +145,12 @@ def semesters():
     return error_code.CACHE_WEBAP_ERROR
 
 
-def midterm_alerts(username, password, year, semester):
-    """Retrun this semester midterm alerts list
+def midterm_alerts(username, year, semester):
+    """After use webap_login_cache_required.
+    Retrun this semester midterm alerts list.
 
     Args:
         username ([str]): NKUST webap username
-        password ([str]): NKUST webap password
         year ([str]): 107  108 .. term year
         semester ([str]): semester
 
@@ -164,31 +159,27 @@ def midterm_alerts(username, password, year, semester):
 
         in any error
         [int]: CACHE_AP_QUERY_USERINFO_ERROR
-               CACHE_WEBAP_LOGIN_FAIL
-               CACHE_WEBAP_SERVER_ERROR
-               CACHE_WEBAP_ERROR
                MIDTERM_ALERTS_ERROR
     """
-    login_status = login(username=username, password=password)
 
-    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
-        midterm_alerts_html = cache_ap_query(username=username,
-                                             qid='ag009', arg01=year, arg02=semester)
-        if midterm_alerts_html != False:
-            if isinstance(midterm_alerts_html, str):
-                res = parse.midterm_alert(midterm_alerts_html)
-                return res
-    else:
-        return login_status
+    midterm_alerts_html = cache_ap_query(username=username,
+                                         qid='ag009', arg01=year, arg02=semester)
+    if midterm_alerts_html != False:
+        if isinstance(midterm_alerts_html, str):
+            res = parse.midterm_alert(midterm_alerts_html)
+            return res
+        else:
+            return error_code.CACHE_AP_QUERY_USERINFO_ERROR
+
     return error_code.MIDTERM_ALERTS_ERROR
 
 
-def score(username, password, year, semester):
-    """Retrun this semester score.
+def score(username, year, semester):
+    """After use webap_login_cache_required.
+    Retrun this semester score.
 
     Args:
         username ([str]): NKUST webap username
-        password ([str]): NKUST webap password
         year ([str]): 107  108 .. term year
         semester ([str]): semester
 
@@ -196,79 +187,68 @@ def score(username, password, year, semester):
         [dict]: score
 
         in any error
-        [int]: CACHE_AP_QUERY_USERINFO_ERROR
-               CACHE_WEBAP_LOGIN_FAIL
-               CACHE_WEBAP_SERVER_ERROR
-               CACHE_WEBAP_ERROR
-               SCORES_ERROR
+        [int]: SCORES_ERROR
     """
-    login_status = login(username=username, password=password)
 
-    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
-        scores_html = cache_ap_query(username=username,
-                                     qid='ag008', arg01=year, arg02=semester)
-        if scores_html != False:
-            if isinstance(scores_html, str):
-                res = parse.scores(scores_html)
-                return res
-    else:
-        return login_status
+    scores_html = cache_ap_query(username=username,
+                                 qid='ag008', arg01=year, arg02=semester)
+    if scores_html != False:
+        if isinstance(scores_html, str):
+            res = parse.scores(scores_html)
+            return res
+
     return error_code.SCORES_ERROR
 
 
-def coursetable(username, password, year, semester):
-    """Retrun course table.
+def coursetable(username, year, semester):
+    """After use webap_login_cache_required.
+    Retrun course table.
 
     This function not save html in redis, is json(str).
-    Because parse course table is too ...QQ
-    I like Beautifulsoup. ( ;u; )
+    Because parse course table is too ...( ;u; )
 
     Args:
         username ([str]): NKUST webap username
-        password ([str]): NKUST webap password
         year ([str]): 107  108 .. term year
         semester ([str]): semester
 
     Returns:
-        [str]: course table json (str)
+        [str]: coursetable_data, json (str)
 
         in any error
         [int]: COURSETABLE_QUERY_ERROR
                WEBAP_ERROR
     """
-    login_status = login(username=username, password=password)
 
     if red_string.exists('coursetable_%s_%s_%s' % (username, year, semester)):
         return red_string.get('coursetable_%s_%s_%s' % (username, year, semester))
 
-    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
-        session = requests.session()
-        # load webap cookie
-        session.cookies = pickle.loads(
-            red_bin.get('webap_cookie_%s' % username))
+    session = requests.session()
+    # load webap cookie
+    session.cookies = pickle.loads(
+        red_bin.get('webap_cookie_%s' % username))
+    query_res = webap_crawler.query(
+        session=session, qid='ag222', arg01=year, arg02=semester)
 
-        query_res = webap_crawler.query(
-            session=session, qid='ag222', arg01=year, arg02=semester)
-        if query_res == False:
-            return error_code.COURSETABLE_QUERY_ERROR
-        elif isinstance(query_res, requests.models.Response):
-            coursetable_data = json.dumps(parse.coursetable(query_res.text))
-            red_string.set(name='coursetable_%s_%s_%s' % (username, year, semester),
-                           value=coursetable_data,
-                           ex=config.CACHE_COURSETABLE_EXPIRE_TIME)
-            return coursetable_data
-    else:
+    if not query_res:
         return error_code.COURSETABLE_QUERY_ERROR
+
+    elif isinstance(query_res, requests.models.Response):
+        coursetable_data = json.dumps(parse.coursetable(query_res.text))
+        red_string.set(name='coursetable_%s_%s_%s' % (username, year, semester),
+                       value=coursetable_data,
+                       ex=config.CACHE_COURSETABLE_EXPIRE_TIME)
+        return coursetable_data
 
     return error_code.WEBAP_ERROR
 
 
-def reward(username, password, year, semester):
-    """Retrun this semester reward.
+def reward(username, year, semester):
+    """After use webap_login_cache_required.
+    Retrun this semester reward.
 
     Args:
         username ([str]): NKUST webap username
-        password ([str]): NKUST webap password
         year ([str]): 107  108 .. term year
         semester ([str]): semester
 
@@ -276,28 +256,22 @@ def reward(username, password, year, semester):
         [dict]: reward dict
 
         in any error
-        [int]: CACHE_WEBAP_LOGIN_FAIL
-               CACHE_WEBAP_SERVER_ERROR
-               CACHE_WEBAP_ERROR
-               REWARD_ERROR
+        [int]: REWARD_ERROR
     """
-    login_status = login(username=username, password=password)
 
-    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
-        scores_html = cache_ap_query(username=username,
-                                     qid='ak010', arg01=year, arg02=semester)
-        if scores_html != False:
-            if isinstance(scores_html, str):
-                res = parse.reward(scores_html)
-                return res
-    else:
-        return login_status
+    scores_html = cache_ap_query(username=username,
+                                 qid='ak010', arg01=year, arg02=semester)
+    if scores_html:
+        if isinstance(scores_html, str):
+            res = parse.reward(scores_html)
+            return res
+
     return error_code.REWARD_ERROR
 
 
 def cache_graduation_threshold(username, password):
     """Retrun  graduation threshold.
-
+    **NKUST maybe abandon this function**
 
     Args:
         username ([str]): NKUST webap username
