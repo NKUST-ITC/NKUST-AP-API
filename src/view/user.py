@@ -219,3 +219,37 @@ class userRoomList:
         else:
             raise falcon.HTTPInternalServerError(
                 description='something error ?')
+
+
+class userQueryEmptyRoom:
+
+    def on_get(self, req, resp):
+
+        if req.get_param('year') is None or req.get_param('semester') is None:
+            raise falcon.HTTPBadRequest(description='params error')
+        if len(req.get_param('year')) > 4 or len(req.get_param('semester')) > 2:
+            raise falcon.HTTPBadRequest(description='params error')
+        if req.get_param('roomid') is None:
+            raise falcon.HTTPBadRequest(description='params error')
+
+        empty_room_data = ap_cache.query_empty_room(
+            room_id=req.get_param('roomid'), year=req.get_param('year'), semester=req.get_param('semester'))
+
+        if isinstance(empty_room_data, str):
+            resp.body = empty_room_data
+            resp.media = falcon.MEDIA_JSON
+            resp.status = falcon.HTTP_200
+            return True
+        # error handle
+        elif isinstance(empty_room_data, int):
+            if empty_room_data == error_code.QUERY_EMPTY_ROOM_ERROR:
+                resp.status = falcon.HTTP_500
+                raise falcon.HTTPInternalServerError(
+                    description="EMPTY ROOM QUERY ERROR")
+
+            elif empty_room_data == error_code.CACHE_WEBAP_ERROR:
+                resp.status = falcon.HTTP_503
+                raise falcon.HTTPServiceUnavailable()
+
+        raise falcon.HTTPInternalServerError(
+            description='something error ?')

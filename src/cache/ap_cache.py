@@ -361,6 +361,68 @@ def room_list(campus):
     return error_code.CACHE_WEBAP_ERROR
 
 
+def query_empty_room(room_id, year, semester):
+    """/user/empty-room/info
+    Query the room course table
+
+    In this function, without use cache_ap_query
+    use webap_crawler.query and use GUEST account.
+
+    Args:
+        room_id ([str]): After get from room_list
+        year ([str]): 107  108.
+        semester ([str]): semester 1,2...
+
+    Returns:
+        [str]: result type is json
+
+
+    """
+
+    cache_redis_name = "room_coursetable_{room_id}_{year}_{semester}".format(
+        room_id=room_id,
+        year=year,
+        semester=semester
+    )
+
+    if red_string.exists(cache_redis_name):
+        return red_string.get(cache_redis_name)
+
+    login_status = login(username=config.AP_GUEST_ACCOUNT,
+                         password=config.AP_GUEST_PASSWORD)
+
+    if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
+        session = requests.session()
+
+        # load guest cookie
+        session.cookies = pickle.loads(red_bin.get(
+            'webap_cookie_%s' % config.AP_GUEST_ACCOUNT))
+
+        yms_data = "{year}#{semester}".format(year=year, semester=semester)
+        query_res = webap_crawler.query(
+            session=session, qid='ag302_02', room_id=room_id, yms_yms=yms_data)
+
+        if query_res == False:
+            return error_code.QUERY_EMPTY_ROOM_ERROR
+
+        elif isinstance(query_res, requests.models.Response):
+            room_coursetable_data = json.dumps(
+                parse.query_room(query_res.text))
+
+            if len(room_coursetable_data) < 160:
+                # avoid null data save in redis.
+                return error_code.CACHE_WEBAP_ERROR
+
+            red_string.set(name=cache_redis_name,
+                           value=room_coursetable_data,
+                           ex=config.CACHE_SEMESTERS_EXPIRE_TIME)
+            return room_coursetable_data
+    else:
+        return error_code.CACHE_WEBAP_ERROR
+
+    return error_code.CACHE_WEBAP_ERROR
+
+
 def cache_ap_query(username, qid,
                    expire_time=config.CACHE_WEBAP_QUERY_DEFAULT_EXPIRE_TIME,
                    **kwargs):

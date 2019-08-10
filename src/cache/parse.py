@@ -254,3 +254,82 @@ def room_list(html):
         '//select[@name="room_id"]/option[@value!=""]')]
     result['data'] = room_list
     return result
+
+
+def query_room(html):
+    # <br> If veryyyy difficult to handle in lxml so.. replace it!
+    html = html.replace('<br>', ',')
+
+    result = {
+        "courses": [],
+        "coursetable": {
+            "timeCodes": []
+        }
+    }
+
+    root = etree.HTML(html)
+    td = root.xpath('/html/body/form/table//font')
+    corses_list = [x.text.replace('\xa0', '') for x in td][11::]
+    # pylint: disable=unsubscriptable-object
+    corses_list_split = map(lambda x: corses_list[int(
+        x)-11: int(x)], range(11, len(corses_list)+11, 11))
+    result_corses = [{"code": x[0],
+                      "title": x[1],
+                      "className": x[2],
+                      "group": x[3],
+                      "units": x[4],
+                      "hours": x[5],
+                      "required": x[7],
+                      "at": x[8],
+                      "times": x[9],
+                      "instructors": x[10].split(',')} for x in corses_list_split]
+
+    course_table_xpath = root.xpath(
+        '/html/body/table[@bordercolor="#999999"]//td[@bgcolor="#fffcee"]//font')
+
+    course_table = [corse.text.replace('\xa0', '')
+                    for corse in course_table_xpath]
+
+    # 2d arrary 7*15(days)
+    corses_list = list(map(lambda x: course_table[int(
+        x)-7: int(x)], range(7, len(course_table)+7, 7)))
+
+    timecode_list_xpath = root.xpath(
+        '/html/body/table[@bordercolor="#999999"]//td[@bgcolor="#ebebeb"]/font')
+
+    week_name = ['Monday', 'Tuesday', 'Wednesday',
+                 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    result['coursetable'].update({i: [] for i in week_name})
+
+    date_list = []
+
+    for i in timecode_list_xpath[7:]:
+        temp = i.text.split(',')[1:3]
+        result['coursetable']['timeCodes'].append(temp[0])
+        cource_time_list = temp[1].split('-')
+        start_time = cource_time_list[0][:2]+":"+cource_time_list[0][2:]
+        end_time = cource_time_list[1][:2]+":"+cource_time_list[1][2:]
+        date_list.append({
+            'startTime': start_time,
+            'endTime': end_time,
+            'section': temp[0]
+        })
+
+    if len(corses_list) is not len(date_list):
+        print('[Error] parser error on query empty room')  # for log
+
+    for week_data_index, week_name_data in enumerate(week_name):
+        for lession_index, lession_data in enumerate(corses_list):
+            if lession_data[week_data_index]:
+                course_split = lession_data[week_data_index].split(',')
+
+                result['coursetable'][week_name_data].append({
+                    'title': course_split[0],
+                    'date': date_list[lession_index],
+                    'instructors': course_split[1:-2]
+                })
+
+    result['courses'] = result_corses
+
+    return result

@@ -48,7 +48,7 @@ def login(session, username, password, timeout=LOGIN_TIMEOUT):
         )
     except requests.exceptions.Timeout:
         return error_code.WEBAP_SERVER_ERROR
-    # print(r.text)
+
     root = etree.HTML(r.text)
     try:
         is_login = root.xpath("/html/body/script")[0].text.find('alert')
