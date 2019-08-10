@@ -111,7 +111,6 @@ def scores(html):
 
 
 def coursetable(html):
-    print(html)
     # <br> If veryyyy difficult to handle in lxml so.. replace it!
     html = html.replace('<br>', ',')
 
@@ -155,6 +154,9 @@ def coursetable(html):
 
     week_name = ['Monday', 'Tuesday', 'Wednesday',
                  'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    result['coursetable'].update({i: [] for i in week_name})
+
     date_list = []
     for i in timecode_list_xpath:
         temp = i.text.split(',')[1:3]
@@ -169,26 +171,18 @@ def coursetable(html):
         })
 
     # 7 day for week
-    for day_count in range(7):
-
-        temp_cource_per_day = []
-        for lession_count in range(len(corses_list)):
-            if len(corses_list[lession_count][day_count]) > 0:
-                course_split = corses_list[lession_count][day_count].split(',')
-                temp_cource_per_day.append({
+    for week_data_index, week_name_data in enumerate(week_name):
+        for lession_index, lession_data in enumerate(corses_list):
+            if lession_data[week_data_index]:
+                course_split = lession_data[week_data_index].split(',')
+                result['coursetable'][week_name_data].append({
                     'title': course_split[0],
-                    'date': date_list[day_count],
+                    'date': date_list[lession_index],
                     'location': {
                         'room': course_split[-2]
                     },
                     'instructors': course_split[1:-2]
                 })
-
-        if temp_cource_per_day == []:
-            continue
-        result['coursetable'].update({
-            week_name[day_count]: temp_cource_per_day
-        })
 
     result['courses'] = result_corses
 
