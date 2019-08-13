@@ -103,8 +103,19 @@ def scores(html):
         "remark": i[8]
     } for i in split_td]
 
+    total = root.xpath("//div[@align='left']")[0].text.split('　　　　')
+    total = ["".join(i.split()) for i in total]
+
+    detail = {
+        "conduct": total[0][5::],
+        "average": total[1][4::],
+        "classRank": total[2][8::],
+        "classPercentage": total[3][7:-1]
+    }
+
     res = {
-        "scores": scores_list
+        "scores": scores_list,
+        "detail": detail
     }
 
     return res
