@@ -21,6 +21,23 @@ def userinfo(html):
     return userData
 
 
+def graduate_user_info(html):
+    result = {
+        "educationSystem": None,
+        "department": None,
+        "className": None,
+        "id": None,
+        "name": None,
+        "pictureUrl": None
+    }
+    root = etree.HTML(html)
+    span = root.xpath('//span[2]')
+    if isinstance(span[0].text, str) and span[0].text != '':
+        result['name'] = span[0].text
+        return result
+    return False
+
+
 def semesters(html):
     """return semesters json
 

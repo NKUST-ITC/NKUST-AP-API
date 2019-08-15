@@ -5,7 +5,7 @@ from utils import config
 
 LOGIN_TIMEOUT = config.WEBAP_LOGIN_TIMEOUT
 AP_BASE_URL = "https://webap.nkust.edu.tw"
-
+AP_HEADER_URL = 'https://webap.nkust.edu.tw/nkust/f_head.jsp'
 #: AP system login url
 AP_LOGIN_URL = AP_BASE_URL + "/nkust/perchk.jsp"
 
@@ -94,6 +94,22 @@ def graduation_threshold(session):
     res = session.post(url=query_url, data=term_form)
 
     return res
+
+
+def graduate_user_info(session):
+    """Get less user info from webap header.
+
+    Args:
+        session ([requests.session]): must be login webap!
+
+    Returns:
+        [requests.models.Response]: requests response
+        other error will return False
+    """
+    req = session.get(url=AP_HEADER_URL, timeout=LOGIN_TIMEOUT)
+    if req.status_code == 200:
+        return req
+    return False
 
 
 def query(session, qid, **kwargs):

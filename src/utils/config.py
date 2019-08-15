@@ -25,3 +25,5 @@ CACHE_GRADUTION_EXPIRE_TIME = 3600
 # why course table expire time so long?
 # read parse.py, it's worth it.
 CACHE_COURSETABLE_EXPIRE_TIME = 60*60*6  # 6 hours
+
+CACHE_GRADUATE_USER_INFO_EXPIRE_TIME = 3600

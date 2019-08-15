@@ -23,7 +23,17 @@ class userInfo:
             resp.media = user_info
             resp.status = falcon.HTTP_200
             return True
-
+        elif user_info == error_code.USER_INFO_PARSE_ERROR:
+            # graduate
+            user_info = ap_cache.graduate_user_info(
+                username=payload['username'])
+            if isinstance(user_info, str):
+                resp.body = user_info
+                resp.media = falcon.MEDIA_JSON
+                resp.status = falcon.HTTP_200
+                return True
+            else:
+                resp.status = falcon.HTTP_204
         raise falcon.HTTPInternalServerError(
             description='something error ?')
 

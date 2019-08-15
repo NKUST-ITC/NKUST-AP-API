@@ -101,6 +101,48 @@ def user_info(username):
     return error_code.USER_INFO_ERROR
 
 
+def graduate_user_info(username):
+    """Get graduate name from webap header.
+    save string data in redis 
+
+    Args:
+        username ([str]): [description]
+
+    Returns:
+        [str]: result type is json
+
+        error
+        [int]: CACHE_AP_QUERY_COOKIE_ERROR
+               USER_INFO_ERROR
+
+    """
+    if not red_bin.exists('webap_cookie_%s' % username):
+        return error_code.CACHE_AP_QUERY_COOKIE_ERROR
+
+    redis_name = "graduate_user_info_{username}".format(
+        username=username)
+
+    if red_string.exists(redis_name):
+        return red_string.get(redis_name)
+
+    # load redis cookie
+    session = requests.session()
+    session.cookies = pickle.loads(red_bin.get('webap_cookie_%s' % username))
+    html = webap_crawler.graduate_user_info(session=session)
+    if html is not False:
+        if isinstance(html.text, str):
+            res = parse.graduate_user_info(html=html.text)
+            if isinstance(res, dict):
+                res['id'] = username
+                _res_dumps = json.dumps(res, ensure_ascii=False)
+                red_string.set(
+                    name=redis_name,
+                    value=_res_dumps,
+                    ex=config.CACHE_GRADUATE_USER_INFO_EXPIRE_TIME)
+                return _res_dumps
+    return error_code.USER_INFO_ERROR
+
+
 def semesters():
     """/user/semesters
     In this function, without use cache_ap_query
