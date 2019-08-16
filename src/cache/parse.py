@@ -131,10 +131,10 @@ def scores(html):
     total = ["".join(i.split()) for i in total]
 
     detail = {
-        "conduct": total[0][5::],
-        "average": total[1][4::],
+        "conduct": float(total[0][5::]) if not None else 0.0,
+        "average": float(total[1][4::]) if not None else 0.0,
         "classRank": total[2][8::],
-        "classPercentage": total[3][7:-1]
+        "classPercentage": float(total[3][7:-1]) if not None else 0.0
     }
 
     res = {
