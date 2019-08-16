@@ -367,6 +367,8 @@ paths:
                           description: text
               example: {"courses":[{"entry":"01","className":"四資工甲","title":"專業倫理","group":"01","instructors":"陳洳瑾","reason":"不認真","remark":"還是不認真"}]}
 
+        204: 
+          description: No Content
         400: 
           description: Bad Request
         401:
@@ -449,7 +451,8 @@ paths:
                           type: integer
                           description: percentage in class
               example: {"scores":[{"title":"專業倫理","units":"1.0","hours":"1.0","required":"【必修】","at":"【學期】","middleScore":"*","finalScore":"96.00","remark":""},{"title":"核心通識(三)-現今科技議題","units":"2.0","hours":"2.0","required":"【必修】","at":"【學期】","middleScore":"*","finalScore":"69.00","remark":""}],"detail":{"conduct":82,"average":39,"classRank":"57/57","classPercentage":100}}
-
+        204: 
+          description: No Content
         400: 
           description: Bad Request
         401:
@@ -571,6 +574,8 @@ paths:
                           type: string
                           description: show in forntend 
               example: {"courses":[{"code":"0430","title":"區塊鏈技術與應用","className":"碩資工一甲","group":"01","units":"3.0","hours":"3.0","required":"【選修】","at":"【學期】","times":"(四)5-7","location":{"room":"育305"},"instructors":["鐘文鈺"]},{"code":"0431","title":"高等資料庫","className":"碩資工一甲","group":"01","units":"3.0","hours":"3.0","required":"【選修】","at":"【學期】","times":"(二)5-7","location":{"room":"育302"},"instructors":["楊孟翰"]},{"code":"0434","title":"區塊鏈技術與應用","className":"碩資工一甲","group":"01","units":"3.0","hours":"3.0","required":"【選修】","at":"【學期】","times":"(四)2-4","location":{"room":"育302"},"instructors":["楊孟翰"]}],"coursetable":{"Thursday":[{"title":"區塊鏈技術與應用","date":{"startTime":"09:10","endTime":"10:00","section":"第2節"},"location":{"room":"育302"},"instructors":["蕭淳元"]},{"title":"區塊鏈技術與應用","date":{"startTime":"10:10","endTime":"11:00","section":"第3節"},"location":{"room":"育302"},"instructors":["蕭淳元"]},{"title":"區塊鏈技術與應用","date":{"startTime":"11:10","endTime":"12:00","section":"第4節"},"location":{"room":"育302"},"instructors":["蕭淳元"]},{"title":"圖形理論","date":{"startTime":"13:30","endTime":"14:20","section":"第5節"},"location":{"room":"育305"},"instructors":["鐘文鈺"]},{"title":"圖形理論","date":{"startTime":"14:30","endTime":"15:20","section":"第6節"},"location":{"room":"育305"},"instructors":["鐘文鈺"]},{"title":"圖形理論","date":{"startTime":"15:30","endTime":"16:20","weekday":"R","section":"第7節"},"location":{"room":"育305"},"instructors":["鐘文鈺"]}],"Tuesday":[{"title":"高等資料庫","date":{"startTime":"13:30","endTime":"14:20","section":"第5節"},"location":{"room":"育302"},"instructors":["楊孟翰"]},{"title":"高等資料庫","date":{"startTime":"14:30","endTime":"15:20","section":"第6節"},"location":{"room":"育302"},"instructors":["楊孟翰"]},{"title":"高等資料庫","date":{"startTime":"15:30","endTime":"16:20","section":"第7節"},"location":{"room":"育302"},"instructors":["楊孟翰"]}],"timeCodes":["第M節","第1節","第2節","第3節","第4節","第A節","第5節","第6節","第7節","第8節","第9節","第10節","第11節","第12節","第13節"]}}
+        204: 
+          description: No Content
         400: 
           description: Bad Request
         401:
@@ -626,6 +631,8 @@ paths:
                           type: string
                           description: text
               example: {"data":[{"date":"1040618","type":"小功","counts":2,"reason":"擔任幹部認真負責(副班長)"},{"date":"1040624","type":"嘉獎","counts":1,"reason":"擔任幹部認真負責"},{"date":"1040629","type":"嘉獎","counts":1,"reason":"辦理系學會活動盡心盡力"}]}
+        204: 
+          description: No Content
         400: 
           description: Bad Request
         401:
