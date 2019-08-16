@@ -218,6 +218,8 @@ class userRoomList:
 
         if len(req.get_param('campus')) > 1:
             raise falcon.HTTPBadRequest(description='params error')
+        if req.get_param('campus') not in ['1', '2', '3', '4', '5']:
+            raise falcon.HTTPBadRequest(description='params error')
 
         campus_room_list_data = ap_cache.room_list(
             campus=req.get_param('campus'))
