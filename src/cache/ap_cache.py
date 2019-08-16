@@ -202,6 +202,7 @@ def midterm_alerts(username, year, semester):
         in any error
         [int]: CACHE_AP_QUERY_USERINFO_ERROR
                MIDTERM_ALERTS_ERROR
+               MIDTERM_ALERTS_PARSER_ERROR
     """
 
     midterm_alerts_html = cache_ap_query(username=username,
@@ -209,6 +210,8 @@ def midterm_alerts(username, year, semester):
     if midterm_alerts_html != False:
         if isinstance(midterm_alerts_html, str):
             res = parse.midterm_alert(midterm_alerts_html)
+            if res is False:
+                return error_code.MIDTERM_ALERTS_PARSER_ERROR
             return res
         else:
             return error_code.CACHE_AP_QUERY_USERINFO_ERROR
@@ -229,14 +232,18 @@ def score(username, year, semester):
         [dict]: score
 
         in any error
-        [int]: SCORES_ERROR
+        [int]:  SCORES_PARSE_ERROR
+                SCORES_ERROR
     """
 
     scores_html = cache_ap_query(username=username,
                                  qid='ag008', arg01=year, arg02=semester)
-    if scores_html != False:
+    if scores_html is not False:
         if isinstance(scores_html, str):
             res = parse.scores(scores_html)
+            if res is False:
+                # 204
+                return error_code.SCORES_PARSE_ERROR
             return res
 
     return error_code.SCORES_ERROR
@@ -258,7 +265,8 @@ def coursetable(username, year, semester):
         [str]: coursetable_data, json (str)
 
         in any error
-        [int]: COURSETABLE_QUERY_ERROR
+        [int]: COURSETABLE_PARSE_ERROR
+               COURSETABLE_QUERY_ERROR
                WEBAP_ERROR
     """
 
@@ -276,7 +284,11 @@ def coursetable(username, year, semester):
         return error_code.COURSETABLE_QUERY_ERROR
 
     elif isinstance(query_res, requests.models.Response):
-        coursetable_data = json.dumps(parse.coursetable(query_res.text))
+        res = parse.coursetable(query_res.text)
+        if res is False:
+            return error_code.COURSETABLE_PARSE_ERROR
+
+        coursetable_data = json.dumps(res)
         red_string.set(name='coursetable_%s_%s_%s' % (username, year, semester),
                        value=coursetable_data,
                        ex=config.CACHE_COURSETABLE_EXPIRE_TIME)
@@ -299,6 +311,7 @@ def reward(username, year, semester):
 
         in any error
         [int]: REWARD_ERROR
+               REWARD_PARSE_ERROR
     """
 
     scores_html = cache_ap_query(username=username,
@@ -306,6 +319,8 @@ def reward(username, year, semester):
     if scores_html:
         if isinstance(scores_html, str):
             res = parse.reward(scores_html)
+            if res is False:
+                return error_code.REWARD_PARSE_ERROR
             return res
 
     return error_code.REWARD_ERROR

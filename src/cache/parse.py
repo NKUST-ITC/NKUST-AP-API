@@ -83,6 +83,10 @@ def midterm_alert(html):
     td = root.xpath("/html/body/form/table[1]//tr[@bgcolor='#FFFcee']//td")
 
     td = [w.text.replace('\xa0', '') for w in td]
+    if len(td) < 75:
+        # 204
+        return False
+
     split_td = map(lambda x: td[int(x)-8: int(x)], range(8, len(td)+8, 8))
     raw_alert = map(lambda x: {'entry': x[0],
                                'className': x[1],
@@ -105,6 +109,9 @@ def scores(html):
     td_etree = root.xpath("//tr[@bgcolor='#FFFcee']//td")
 
     raw_td = [td.text.replace('\xa0', '') for td in td_etree]
+
+    if len(raw_td) <= 0:
+        return False
 
     split_td = map(lambda x: raw_td[int(
         x)-9: int(x)], range(9, len(raw_td)+9, 9))
@@ -152,6 +159,10 @@ def coursetable(html):
     root = etree.HTML(html)
     td = root.xpath('/html/body/form/table//font')
     corses_list = [x.text.replace('\xa0', '') for x in td][11::]
+    # 204 empty query
+    if len(corses_list) <= 0:
+        return False
+
     # pylint: disable=unsubscriptable-object
     corses_list_split = map(lambda x: corses_list[int(
         x)-11: int(x)], range(11, len(corses_list)+11, 11))
@@ -228,7 +239,8 @@ def reward(html):
     td = root.xpath('//tr[@bgcolor="#fffcee"]/td/font')
 
     reward_list = [x.text.replace('\xa0', '') for x in td]
-
+    if len(reward_list) < 7:
+        return False
     # pylint: disable=unsubscriptable-object
     reward_list_split = map(lambda x: reward_list[int(
         x)-6: int(x)], range(6, len(reward_list)+6, 6))

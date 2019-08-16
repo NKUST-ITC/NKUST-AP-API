@@ -84,6 +84,9 @@ class userMidtermAlerts:
             resp.media = midterm_alerts_dict
             resp.status = falcon.HTTP_200
             return True
+        elif midterm_alerts_dict == error_code.MIDTERM_ALERTS_PARSER_ERROR:
+            resp.status = falcon.HTTP_204
+            return False
 
         raise falcon.HTTPInternalServerError(
             description='something error ?')
@@ -109,7 +112,10 @@ class userScore:
             resp.media = score_dict
             resp.status = falcon.HTTP_200
             return True
-
+        elif score_dict == error_code.SCORES_PARSE_ERROR:
+            # 204
+            resp.status = falcon.HTTP_204
+            return True
         raise falcon.HTTPInternalServerError(
             description='something error ?')
 
@@ -141,6 +147,9 @@ class userCourseTable:
                 resp.status = falcon.HTTP_500
                 raise falcon.HTTPInternalServerError(
                     description="COURSETABLE QUERY ERROR")
+            elif course_dict == error_code.COURSETABLE_PARSE_ERROR:
+                resp.status = falcon.HTTP_204
+                return False
 
         raise falcon.HTTPInternalServerError(
             description='something error ?')
@@ -165,6 +174,9 @@ class userReward:
             resp.media = reward_dict
             resp.status = falcon.HTTP_200
             return True
+        elif reward_dict == error_code.REWARD_PARSE_ERROR:
+            resp.status = falcon.HTTP_204
+            return False
 
         raise falcon.HTTPInternalServerError(
             description='something error ?')
