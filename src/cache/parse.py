@@ -239,7 +239,7 @@ def reward(html):
     td = root.xpath('//tr[@bgcolor="#fffcee"]/td/font')
 
     reward_list = [x.text.replace('\xa0', '') for x in td]
-    if len(reward_list) < 7:
+    if len(reward_list) < 6:
         return False
     # pylint: disable=unsubscriptable-object
     reward_list_split = map(lambda x: reward_list[int(
