@@ -769,8 +769,6 @@ paths:
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
-        404:
-          description: Page not found
         500:
           description: Internal Server Error
         503:
@@ -821,8 +819,6 @@ paths:
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
-        404:
-          description: Page not found
         500:
           description: Internal Server Error
         503:
@@ -926,8 +922,6 @@ paths:
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
-        404:
-          description: Page not found
         500:
           description: Internal Server Error
         503:
