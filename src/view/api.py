@@ -15,7 +15,7 @@ red_auth_token = redis.StrictRedis.from_url(
 
 class ApiLogin:
     auth = {
-        'auth_disabled': True
+        'exempt_methods': ['POST']
     }
     @falcon.before(max_body(64 * 1024))
     def on_post(self, req, resp):
@@ -62,3 +62,23 @@ class ApiLogin:
 
         else:
             raise falcon.HTTPBadRequest()
+
+    def on_delete(self, req, resp):
+
+        payload = req.context['user']['user']
+        redis_token_name = "{username}_{token}".format(
+            username=payload['username'],
+            token=payload['token'])
+        red_auth_token.delete(redis_token_name)
+        resp.status = falcon.HTTP_205
+
+
+class DeleteAllToken:
+
+    def on_delete(self, req, resp):
+        payload = req.context['user']['user']
+        scan_filter = "{username}_*".format(username=payload['username'])
+        for key in red_auth_token.scan_iter(scan_filter):
+            red_auth_token.delete(key)
+
+        resp.status = falcon.HTTP_205
