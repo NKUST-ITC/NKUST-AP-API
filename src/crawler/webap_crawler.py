@@ -5,7 +5,7 @@ from utils import config
 
 LOGIN_TIMEOUT = config.WEBAP_LOGIN_TIMEOUT
 AP_BASE_URL = "https://webap.nkust.edu.tw"
-
+AP_HEADER_URL = 'https://webap.nkust.edu.tw/nkust/f_head.jsp'
 #: AP system login url
 AP_LOGIN_URL = AP_BASE_URL + "/nkust/perchk.jsp"
 
@@ -13,18 +13,12 @@ AP_LOGIN_URL = AP_BASE_URL + "/nkust/perchk.jsp"
 #  first: prefix of qid, second: qid
 AP_QUERY_URL = AP_BASE_URL + "/nkust/%s_pro/%s.jsp"
 
-#: AP guest account
-AP_GUEST_ACCOUNT = "guest"
-
-#: AP guest password
-AP_GUEST_PASSWORD = "123"
-
 #: Query timeout
 QUERY_TIMEOUT = config.WEPAP_QUERY_TIMEOUT
 
 
 def login(session, username, password, timeout=LOGIN_TIMEOUT):
-    """[summary]
+    """login to webap
 
     Args:
         session ([request.session]): requests session
@@ -54,7 +48,7 @@ def login(session, username, password, timeout=LOGIN_TIMEOUT):
         )
     except requests.exceptions.Timeout:
         return error_code.WEBAP_SERVER_ERROR
-    # print(r.text)
+
     root = etree.HTML(r.text)
     try:
         is_login = root.xpath("/html/body/script")[0].text.find('alert')
@@ -69,3 +63,84 @@ def login(session, username, password, timeout=LOGIN_TIMEOUT):
         return error_code.WEBAP_ERROR
 
     return error_code.WEBAP_ERROR
+
+
+def graduation_threshold(session):
+    """get graduation threshold
+        url : "/user/graduation-threshold"
+
+    Args:
+        session ([requests.session]): must be login webap!
+
+    Returns:
+        [requests.models.Response]: requests response
+        other error will return False
+    """
+
+    # post it, it will return Aength.kuas.edu.tw cookie
+    Aength_login = session.post('https://webap.nkust.edu.tw/nkust/fnc.jsp',
+                                data={'fncid': 'AG635'})
+    # get post data
+    try:
+        root = etree.HTML(Aength_login.text)
+        term_form_xpath = root.xpath('//input[@type="hidden"]')
+        term_form = {i.values()[1]: i.values()[-1] for i in term_form_xpath}
+    except:
+        return False
+
+    # final post
+    query_url = 'http://Aength.kuas.edu.tw/AUPersonQ.aspx'
+
+    res = session.post(url=query_url, data=term_form)
+
+    return res
+
+
+def graduate_user_info(session):
+    """Get less user info from webap header.
+
+    Args:
+        session ([requests.session]): must be login webap!
+
+    Returns:
+        [requests.models.Response]: requests response
+        other error will return False
+    """
+    req = session.get(url=AP_HEADER_URL, timeout=LOGIN_TIMEOUT)
+    if req.status_code == 200:
+        return req
+    return False
+
+
+def query(session, qid, **kwargs):
+    """AP system query
+
+    Args:
+        session ([requests.session]): after load cookies
+        qid ([str]): url qid
+
+        kwargs:
+            (e.g.)
+            ag_query(session=session, qid='ag008',
+                           yms='107,2', arg01='107', arg02='2')
+
+            post data will = {
+                'yms':'107,2',
+                'arg01':'107',
+                'arg02':'2'
+            }
+
+    Returns:
+        [requests.models.Response]: requests response
+
+        [bool]: something error will return False
+    """
+
+    try:
+        req = session.post(AP_QUERY_URL % (qid[:2], qid),
+                           data=kwargs)
+        return req
+    except:
+        return False
+
+    return False

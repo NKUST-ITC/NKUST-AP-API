@@ -31,5 +31,6 @@ def user_loader(client_submitted_jwt):
 jwt_auth = JWTAuthBackend(user_loader,
                           secret_key=SECRET_KEY,
                           auth_header_prefix='Bearer',
-                          leeway=JWT_EXPIRE_TIME)
+                          leeway=60,
+                          expiration_delta=JWT_EXPIRE_TIME)
 auth_middleware = FalconAuthMiddleware(jwt_auth)
