@@ -84,3 +84,51 @@ def login(session, username, password):
         return error_code.BUS_ERROR
 
     return error_code.BUS_ERROR
+
+
+def reserve(session):
+    """Query user reserve bus record.
+
+    Args:
+        session ([request.session]): requests session
+
+
+    Returns:
+        [list]: reserve list.
+
+        [int]: BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER(602)
+               BUS_TIMEOUT_ERROR(604)
+               BUS_ERROR(605)
+    """
+
+    data = {
+        'page': 1,
+        'start': 0,
+        'limit': 90
+    }
+    try:
+        resource = session.post(
+            BUS_RESERVE_URL, data=data, timeout=BUS_TIMEOUT).json()
+
+    except requests.exceptions.Timeout:
+        return error_code.BUS_TIMEOUT_ERROR
+    except Exception as e:
+        return error_code.BUS_ERROR
+
+    if resource['code'] == 400:
+        return error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER
+    rd = []
+    if resource['data'] is not None:
+        for i in resource['data']:
+            data = {}
+            data['dateTime'] = _get_real_time(i['time'])
+            data['endTime'] = _get_real_time(i['endTime'])
+            data['cancelKey'] = i['key']
+            data['start'] = i['start']
+            data['state'] = i['state']
+            data['travelState'] = i['SpecialTrain']
+            rd.append(data)
+
+    result = sorted(rd, key=lambda k: k['dateTime'])
+
+    return result
