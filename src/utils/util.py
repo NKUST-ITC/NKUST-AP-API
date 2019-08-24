@@ -1,7 +1,10 @@
-import string
 import random
+import string
+
 import falcon
+
 from cache.ap_cache import login as webap_login
+from cache.bus_cache import login as bus_login
 from utils import error_code
 
 
@@ -53,4 +56,42 @@ def webap_login_cache_required(req, resp, resource, params):
         raise falcon.HTTPServiceUnavailable()
     elif login_status == error_code.CACHE_WEBAP_ERROR:
         raise falcon.HTTPInternalServerError()
+    raise falcon.HTTPInternalServerError()
+
+
+def bus_login_cache_required(req, resp, resource, params):
+    """This function is for falcon.before to use, like a decorator,
+    check user have cache cookie.
+
+    Args:
+        req ([type]): falcon default.
+        resp ([type]): falcon default.
+        resource ([type]): falcon default.
+        params ([type]): falcon default.
+
+    Raises:
+        falcon.HTTPUnauthorized: HTTP_401, login fail,or maybe NKUST server is down.
+        falcon.HTTPForbidden: HTTP_403, wrong campus.
+        falcon.HTTPServiceUnavailable: HTTP_503, NKUST server problem, timeout.
+        falcon.HTTPInternalServerError: HTTP_500, something error.
+
+    Returns:
+        [bool]: True, login success.
+    """
+    # jwt payload
+    payload = req.context['user']['user']
+    login_status = bus_login(
+        username=payload['username'], password=payload['password'])
+
+    if login_status == error_code.CACHE_BUS_LOGIN_SUCCESS:
+        return True
+    elif login_status == error_code.BUS_WRONG_PASSWORD:
+        # 401
+        raise falcon.HTTPUnauthorized(description='login fail')
+    elif login_status == error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER:
+        # 403
+        raise falcon.HTTPForbidden(description='wrong campus')
+    elif login_status == error_code.BUS_TIMEOUT_ERROR:
+        # 503
+        raise falcon.HTTPServiceUnavailable()
     raise falcon.HTTPInternalServerError()
