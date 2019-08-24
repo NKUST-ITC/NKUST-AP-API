@@ -84,3 +84,64 @@ def login(session, username, password):
         return error_code.BUS_ERROR
 
     return error_code.BUS_ERROR
+
+
+def query(session, year, month, day):
+    """query bus timetable.
+
+    Args:
+        session ([request.session]): requests session
+        year ([int]): year, common era.
+        month ([int]): month.
+        day ([int]): day.
+
+    Returns:
+        [list]: timetable list.
+
+        [int]: BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER(602)
+               BUS_TIMEOUT_ERROR(604)
+               BUS_ERROR(605)
+    """
+
+    data = {
+        'data': '{"y": "%s","m": "%s","d": "%s"}' % (year, month, day),
+        'operation': "全部",
+        'page': 1,
+        'start': 0,
+        'limit': 90
+    }
+
+    try:
+        resp = session.post(BUS_FREQ_URL, data=data, timeout=BUS_TIMEOUT)
+        resource = resp.json()
+    except requests.exceptions.Timeout:
+        return error_code.BUS_TIMEOUT_ERROR
+    except Exception as e:
+        return error_code.BUS_ERROR
+
+    if resource['code'] == 400:
+        return error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER
+
+    result = []
+
+    if not resource['data']:
+        return []
+    for i in resource['data']:
+        Data = {}
+        Data['endEnrollDateTime'] = _get_real_time(i['EndEnrollDateTime'])
+        Data['departureTime'] = _get_real_time(i['runDateTime'])
+        Data['startStation'] = i['startStation']
+        Data['busId'] = i['busId']
+        Data['reserveCount'] = int(i['reserveCount'])
+        Data['limitCount'] = int(i['limitCount'])
+        Data['isReserve'] = bool(int(i['isReserve']) + 1)
+        Data['specialTrain'] = i['SpecialTrain']
+        Data['discription'] = i['SpecialTrainRemark']
+        Data['homeCharteredBus'] = False
+
+        if i['SpecialTrain'] == '1':
+            Data['homeCharteredBus'] = True
+
+        result.append(Data)
+
+    return result
