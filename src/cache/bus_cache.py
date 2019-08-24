@@ -1,3 +1,5 @@
+import datetime
+import json
 import pickle
 
 import redis
@@ -47,3 +49,43 @@ def login(username, password):
         return login_status
 
     return error_code.CACHE_BUS_ERROR
+
+
+def bus_violation(username):
+    """bus timetable query, use config.CACHE_BUS_TIMETABLE_EXPIRE_TIME
+    to expire data.
+    Args:
+        username ([str]): webap username
+    Returns:
+        [str]: result type is json.
+        [int]: CACHE_BUS_COOKIE_ERROR(612)
+               BUS_TIMEOUT_ERROR(604)
+               BUS_ERROR(605)
+    """
+
+    if not red_bin.exists('bus_cookie_%s' % username):
+        return error_code.CACHE_BUS_COOKIE_ERROR
+
+    redis_name = "bus_violation-records_{username}".format(
+        username=username)
+
+    if red_string.exists(redis_name):
+        return red_string.get(redis_name)
+
+    session = requests.session()
+    session.cookies = pickle.loads(red_bin.get('bus_cookie_%s' % username))
+    result = bus_crawler.get_violation_records(session=session)
+
+    if isinstance(result, list):
+        return_data = {
+            "reservation": result
+        }
+        json_dumps_data = json.dumps(return_data, ensure_ascii=False)
+        red_string.set(
+            name=redis_name,
+            value=json_dumps_data,
+            ex=config.CACHE_BUS_VIOLATION_RECORD_EXPIRE_TIME)
+        return json_dumps_data
+
+    # return error code
+    return result
