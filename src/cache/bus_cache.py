@@ -1,6 +1,8 @@
 import datetime
 import json
 import pickle
+from multiprocessing.pool import ThreadPool
+
 
 import redis
 import requests
@@ -85,10 +87,25 @@ def bus_query(username, year, month, day):
 
     session = requests.session()
     session.cookies = pickle.loads(red_bin.get('bus_cookie_%s' % username))
+    pool = ThreadPool(processes=1)
+    async_result = pool.apply_async(bus_reservations_record, (username,))
+
     result = bus_crawler.query(
         session=session, year=year, month=month, day=day)
 
     if isinstance(result, list):
+
+        if not isinstance(async_result.get(), str):
+            return error_code.BUS_ERROR
+        # mix cancelKey in timetable
+        user_reservation = json.loads(async_result.get())
+        for bus_data in result:
+            bus_data['cancelKey'] = ''
+            if bus_data['isReserve']:
+                for reservation_data in user_reservation['data']:
+                    if reservation_data['dateTime'] == bus_data['departureTime']:
+                        bus_data['cancelKey'] = reservation_data['cancelKey']
+
         return_data = {
             "date": datetime.datetime.now().isoformat(),
             "data": result
