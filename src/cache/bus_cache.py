@@ -119,7 +119,7 @@ def bus_reserve_book(username, kid, action):
     if isinstance(result, dict):
         if result['success']:
             # clear all bus cache, because data changed.
-            for key in red_string.scan_iter('bus_*_{username}_*'.format(username=username)):
+            for key in red_string.scan_iter('bus_*_{username}*'.format(username=username)):
                 red_string.delete(key)
             return result
         else:
