@@ -1,3 +1,4 @@
+import json
 import pickle
 
 import redis
@@ -44,3 +45,38 @@ def login(username, password):
         return login_status
 
     return error_code.CACHE_LIBRARY_ERROR
+
+
+def userinfo(username):
+    """library user info.
+
+    Args:
+        username ([str]): username of NKUST ap system, actually your NKUST student id.
+
+    Returns:
+        [str]: json (str)
+
+        [int]: CACHE_LIBRARY_ERROR
+               LIBRARY_ERROR
+    """
+    if not red_bin.exists('library_cookie_%s' % username):
+        return error_code.CACHE_LIBRARY_ERROR
+
+    redis_name = "library_user_info_{username}".format(
+        username=username)
+
+    if red_string.exists(redis_name):
+        return red_string.get(redis_name)
+
+    # load redis cookie
+    session = requests.session()
+    session.cookies = pickle.loads(red_bin.get('library_cookie_%s' % username))
+    user_info = library_crawler.user_info(session=session)
+    if isinstance(user_info, dict):
+        _res_dumps = json.dumps(user_info, ensure_ascii=False)
+        red_string.set(
+            name=redis_name,
+            value=_res_dumps,
+            ex=config.CACHE_LIBRARY_USER_INFO_EXPIRE_TIME)
+        return _res_dumps
+    return error_code.LIBRARY_ERROR
