@@ -5,6 +5,7 @@ import falcon
 
 from cache.ap_cache import login as webap_login
 from cache.bus_cache import login as bus_login
+from cache.library_cache import login as library_login
 from utils import error_code
 
 
@@ -94,4 +95,42 @@ def bus_login_cache_required(req, resp, resource, params):
     elif login_status == error_code.BUS_TIMEOUT_ERROR:
         # 503
         raise falcon.HTTPServiceUnavailable()
+    raise falcon.HTTPInternalServerError()
+
+
+def library_login_cache_required(req, resp, resource, params):
+    """This function is for falcon.before to use, like a decorator,
+    check user have cache cookie.
+
+    Args:
+        req ([type]): falcon default.
+        resp ([type]): falcon default.
+        resource ([type]): falcon default.
+        params ([type]): falcon default.
+
+    Raises:
+        falcon.HTTPUnauthorized: HTTP_401, login fail.
+        falcon.HTTPServiceUnavailable: HTTP_503, NKUST server problem, timeout or login error.
+        (If use the wrong account to login, almost get timeout error,
+         and if not limit timeout, always spend 5 sec or more to get
+         fail login status.)
+
+        falcon.HTTPInternalServerError: HTTP_500, something error.
+
+    Returns:
+        [bool]: True, login success.
+    """
+    # jwt payload
+    payload = req.context['user']['user']
+    login_status = library_login(
+        username=payload['username'], password=payload['password'])
+
+    if login_status == error_code.CACHE_LIBRARY_LOGIN_SUCCESS:
+        return True
+    elif login_status == error_code.LIBRARY_LOGIN_FAIL:
+        # 401
+        raise falcon.HTTPUnauthorized(description='login fail')
+    elif login_status == error_code.LIBRARY_ERROR:
+        raise falcon.HTTPServiceUnavailable()
+
     raise falcon.HTTPInternalServerError()
