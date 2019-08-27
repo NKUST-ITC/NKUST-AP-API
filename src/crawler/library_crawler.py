@@ -48,27 +48,27 @@ def login(session, username, password):
     return error_code.LIBRARY_ERROR
 
 
-def userInfo(session):
+def user_info(session):
 
     connent = session.get(url=USER_PROFILE_URL)
-
+    if connent.status_code != 200:
+        return False
     root = etree.HTML(connent.text)
 
-    userDataTemp = root.xpath("//div[@class='idcard-right']//p")
-    userRecordTemp = root.xpath(
+    user_data_temp = root.xpath("//div[@class='idcard-right']//p")
+    user_record_temp = root.xpath(
         "//div[@class='uk-grid uk-grid-collapse color_primary']//span[@class='likes']")
-    if len(userDataTemp) < 3:
-        # something error
+    if len(user_data_temp) < 3:
         return False
 
-    userData = {
-        'studentName': userDataTemp[0].text,
-        'libraryId': userDataTemp[1].text,
-        'department': userDataTemp[2].text,
+    user_data = {
+        'studentName': user_data_temp[0].text,
+        'libraryId': user_data_temp[1].text,
+        'department': user_data_temp[2].text,
         'record': {
-            'borrowing': userRecordTemp[0].text,
-            'reserve-rental': userRecordTemp[1].text,
-            'userFine': userRecordTemp[2].text
+            'borrowing': user_record_temp[0].text,
+            'reserve-rental': user_record_temp[1].text,
+            'userFine': user_record_temp[2].text
         }
     }
-    return userData
+    return user_data
