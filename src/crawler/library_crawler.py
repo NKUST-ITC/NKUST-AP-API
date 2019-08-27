@@ -62,7 +62,7 @@ def user_info(session):
         return False
 
     user_data = {
-        'studentName': user_data_temp[0].text,
+        'name': user_data_temp[0].text,
         'libraryId': user_data_temp[1].text,
         'department': user_data_temp[2].text,
         'record': {
