@@ -39,7 +39,7 @@ def login(username, password):
         # save cookie to redis
         if login_status == error_code.LIBRARY_LOGIN_SUCCESS:
             red_bin.set(name='library_cookie_%s' %
-                        username, value=pickle.dumps(session.cookies), ex=config.CACHE_BUS_COOKIE_EXPIRE_TIME)
+                        username, value=pickle.dumps(session.cookies), ex=config.CACHE_LIBRARY_EXPIRE_TIME)
             return error_code.CACHE_LIBRARY_LOGIN_SUCCESS
         return login_status
 
