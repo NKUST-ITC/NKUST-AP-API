@@ -16,7 +16,7 @@ class busTimeTable:
         if req.get_param('date') == None:
             raise falcon.HTTPBadRequest(description='params error')
         date_pattern = re.compile(
-            r'^([1-9][0-9]{3})-(\+?{[1-9][0-9]|[0-9][1-9]|[1-9]}{0,1})-(\+?{[1-9][0-9]|[0-9][1-9]|[1-9]}{0,1})$')
+            r'^([1-9][0-9]{3})-([01]?[0-9]?[0-9])-([01]?[0-9]?[0-9])$')
         regex_match = date_pattern.match(req.get_param('date'))
         if not regex_match:
             raise falcon.HTTPBadRequest(description='params value error')
