@@ -1,3 +1,4 @@
+import json
 import pickle
 
 import redis
@@ -41,5 +42,45 @@ def login(username, password):
             return error_code.CACHE_LEAVE_LOGIN_SUCCESS
         else:
             return login_status
+
+    return error_code.CACHE_LEAVE_ERROR
+
+
+def get_leave_list(username, year, semester):
+    """leave list
+
+    Args:
+        username ([str]): NKUST webap username
+        year ([str]): 107  108 .. term year
+        semester ([str]): semester
+
+    Returns:
+        [str]: result type is json.
+
+        [int]:CACHE_LEAVE_ERROR
+    """
+    redis_name = "leave_list_{username}_{year}_{semester}".format(
+        username=username,
+        year=year,
+        semester=semester)
+
+    if red_string.exists(redis_name):
+        return red_string.get(redis_name)
+
+    session = requests.session()
+    session.cookies = pickle.loads(red_bin.get('leave_cookie_%s' % username))
+
+    list_data = leave_crawler.get_leave_list(
+        session=session, year=year, semester=semester)
+    if isinstance(list_data, list):
+        return_data = {
+            "data": list_data
+        }
+        json_dumps_data = json.dumps(return_data, ensure_ascii=False)
+        red_string.set(
+            name=redis_name,
+            value=json_dumps_data,
+            ex=config.CACHE_LEAVE_LIST_EXPIRE_TIME)
+        return json_dumps_data
 
     return error_code.CACHE_LEAVE_ERROR
