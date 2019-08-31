@@ -1,6 +1,6 @@
 import datetime
 import json
-import time
+import pytz
 
 import execjs
 import requests
@@ -35,7 +35,7 @@ def js_init(session):
 
 
 def _get_real_time(timestamp):
-    return datetime.datetime.fromtimestamp(int(timestamp) / 10000000 - 62135596800).isoformat()
+    return datetime.datetime.fromtimestamp(int(timestamp) / 10000000 - 62135596800, tz=pytz.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
 
 
 def login(session, username, password):

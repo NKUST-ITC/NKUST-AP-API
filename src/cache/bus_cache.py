@@ -107,7 +107,7 @@ def bus_query(username, year, month, day):
                         bus_data['cancelKey'] = reservation_data['cancelKey']
 
         return_data = {
-            "date": datetime.datetime.now().isoformat(),
+            "date": datetime.datetime.utcnow().isoformat(timespec='seconds')+"Z",
             "data": result
         }
         json_dumps_data = json.dumps(return_data, ensure_ascii=False)
