@@ -53,3 +53,81 @@ def login(session, username, password):
         return error_code.LEAVE_LOGIN_SUCCESS
     else:
         return error_code.LEAVE_LOGIN_FAIL
+
+
+def get_leave_list(session, year, semester):
+    """[summary]
+
+    Args:
+        session ([type]): [description]
+        year ([type]): [description]
+        semester ([type]): [description]
+
+    Returns:
+        [list]: leave list.
+        [bool]: False, fail case.
+    """
+
+    req = session.get("http://leave.nkust.edu.tw/AK002MainM.aspx")
+
+    if req.status_code != 200:
+        return error_code.LEAVE_LOGIN_FAIL
+
+    root = etree.HTML(req.text)
+
+    form = {}
+    for i in root.xpath("//input"):
+        form[i.attrib["name"]] = i.attrib[
+            "value"] if "value" in i.attrib else ""
+
+    try:
+        del form['ctl00$ButtonLogOut']
+    except:
+        return False
+
+    form[
+        'ctl00$ContentPlaceHolder1$SYS001$DropDownListYms'] = "%s-%s" % (year, semester)
+
+    r = session.post(
+        "http://leave.nkust.edu.tw/AK002MainM.aspx", data=form)
+    root = etree.HTML(r.text)
+
+    tr = root.xpath("//table")[-1]
+
+    leave_list = []
+
+    # Delete row id, leave id, teacher quote
+    for r_index, r in enumerate(tr):
+        r = list(map(lambda x: x.replace("\r", "").
+                     replace("\n", "").
+                     replace("\t", "").
+                     replace(u"\u3000", "").
+                     replace(" ", ""),
+                     r.itertext()
+                     ))
+
+        if not r[0]:
+            del r[0]
+        if not r[-1]:
+            del r[-1]
+
+        leave_list.append(r)
+    result = []
+    for r in leave_list[1:]:
+        i = len(r)-15
+        for approved in range(4, i):
+            r[3] += ' , '+r[approved]
+        leave = {
+            "leaveSheetId": r[1].replace("\xa0", ""),
+            "date": r[2],
+            "instructorsComment": r[3],
+            "sections": [
+                {"section": leave_list[0][index + 4], "reason": s}
+                for index, s in enumerate(r[i:])
+            ]
+        }
+
+        leave["sections"] = list(
+            filter(lambda x: x["reason"], leave["sections"]))
+        result.append(leave)
+    return result
