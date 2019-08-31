@@ -11,6 +11,7 @@ JWT_EXPIRE_TIME = 3600
 # crawler zone
 WEBAP_LOGIN_TIMEOUT = 5
 WEPAP_QUERY_TIMEOUT = 5
+LEAVE_LOGIN_TIMEOUT = 4
 #: AP guest account
 AP_GUEST_ACCOUNT = "guest"
 #: AP guest password
