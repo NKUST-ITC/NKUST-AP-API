@@ -49,6 +49,7 @@ def login(session, username, password):
                      data=form, allow_redirects=False)
 
     if r.status_code == 302:
+        session.get('http://leave.nkust.edu.tw/masterindex.aspx')
         return error_code.LEAVE_LOGIN_SUCCESS
     else:
         return error_code.LEAVE_LOGIN_FAIL
