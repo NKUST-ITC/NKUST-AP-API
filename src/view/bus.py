@@ -31,6 +31,9 @@ class busTimeTable:
 
         if isinstance(reslut, str):
             resp.body = reslut
+            if len(reslut) < 100:
+                resp.status = falcon.HTTP_204
+                return True
             resp.media = falcon.MEDIA_JSON
             resp.status = falcon.HTTP_200
             return True
