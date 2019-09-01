@@ -14,8 +14,9 @@ Requirement
 
 API Docs
 ---
-[docs](https://github.com/NKUST-ITC/AP-API/tree/develop/docs/v3)
+[API PAGE](https://nkust-itc.github.io/NKUST-AP-API/docs/api-page.html)
 
+[docs](https://github.com/NKUST-ITC/AP-API/tree/develop/docs/v3)
 
 Donate
 ---
