@@ -136,7 +136,7 @@ def query(session, year, month, day):
         Data['limitCount'] = int(i['limitCount'])
         Data['isReserve'] = bool(int(i['isReserve']) + 1)
         Data['specialTrain'] = i['SpecialTrain']
-        Data['discription'] = i['SpecialTrainRemark']
+        Data['description'] = i['SpecialTrainRemark']
         Data['homeCharteredBus'] = False
 
         if i['SpecialTrain'] == '1':
