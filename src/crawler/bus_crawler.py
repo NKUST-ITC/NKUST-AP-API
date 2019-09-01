@@ -1,6 +1,6 @@
 import datetime
 import json
-import time
+import pytz
 
 import execjs
 import requests
@@ -35,7 +35,7 @@ def js_init(session):
 
 
 def _get_real_time(timestamp):
-    return datetime.datetime.fromtimestamp(int(timestamp) / 10000000 - 62135596800).isoformat()
+    return datetime.datetime.fromtimestamp(int(timestamp) / 10000000 - 62135596800, tz=pytz.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
 
 
 def login(session, username, password):
@@ -84,3 +84,112 @@ def login(session, username, password):
         return error_code.BUS_ERROR
 
     return error_code.BUS_ERROR
+
+
+def query(session, year, month, day):
+    """query bus timetable.
+
+    Args:
+        session ([request.session]): requests session
+        year ([int]): year, common era.
+        month ([int]): month.
+        day ([int]): day.
+
+    Returns:
+        [list]: timetable list.
+
+        [int]: BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER(602)
+               BUS_TIMEOUT_ERROR(604)
+               BUS_ERROR(605)
+    """
+
+    data = {
+        'data': '{"y": "%s","m": "%s","d": "%s"}' % (year, month, day),
+        'operation': "全部",
+        'page': 1,
+        'start': 0,
+        'limit': 90
+    }
+
+    try:
+        resp = session.post(BUS_FREQ_URL, data=data, timeout=BUS_TIMEOUT)
+        resource = resp.json()
+    except requests.exceptions.Timeout:
+        return error_code.BUS_TIMEOUT_ERROR
+    except Exception as e:
+        return error_code.BUS_ERROR
+
+    if resource['code'] == 400:
+        return error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER
+
+    result = []
+
+    if not resource['data']:
+        return []
+    for i in resource['data']:
+        Data = {}
+        Data['endEnrollDateTime'] = _get_real_time(i['EndEnrollDateTime'])
+        Data['departureTime'] = _get_real_time(i['runDateTime'])
+        Data['startStation'] = i['startStation']
+        Data['busId'] = i['busId']
+        Data['reserveCount'] = int(i['reserveCount'])
+        Data['limitCount'] = int(i['limitCount'])
+        Data['isReserve'] = bool(int(i['isReserve']) + 1)
+        Data['specialTrain'] = i['SpecialTrain']
+        Data['description'] = i['SpecialTrainRemark']
+        Data['homeCharteredBus'] = False
+
+        if i['SpecialTrain'] == '1':
+            Data['homeCharteredBus'] = True
+
+        result.append(Data)
+
+    return result
+
+
+def reserve(session):
+    """Query user reserve bus record.
+
+    Args:
+        session ([request.session]): requests session
+
+
+    Returns:
+        [list]: reserve list.
+
+        [int]: BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER(602)
+               BUS_TIMEOUT_ERROR(604)
+               BUS_ERROR(605)
+    """
+
+    data = {
+        'page': 1,
+        'start': 0,
+        'limit': 90
+    }
+    try:
+        resource = session.post(
+            BUS_RESERVE_URL, data=data, timeout=BUS_TIMEOUT).json()
+
+    except requests.exceptions.Timeout:
+        return error_code.BUS_TIMEOUT_ERROR
+    except Exception as e:
+        return error_code.BUS_ERROR
+
+    if resource['code'] == 400:
+        return error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER
+    rd = []
+    if resource['data'] is not None:
+        for i in resource['data']:
+            data = {}
+            data['dateTime'] = _get_real_time(i['time'])
+            data['endTime'] = _get_real_time(i['endTime'])
+            data['cancelKey'] = i['key']
+            data['start'] = i['start']
+            data['state'] = i['state']
+            data['travelState'] = i['SpecialTrain']
+            rd.append(data)
+
+    result = sorted(rd, key=lambda k: k['dateTime'])
+
+    return result
