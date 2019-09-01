@@ -57,7 +57,7 @@ class AnnouncementsAll:
         '/news/announcements/all'
 
         news_data = news.get_all_news()
-        if news_data is []:
+        if news_data == []:
             resp.status = falcon.HTTP_204
             return True
 
