@@ -5,12 +5,13 @@ import falcon
 import redis
 
 from auth import jwt_auth
-from cache import ap_cache
+from cache import ap_cache, api_cache
 from utils import config, error_code
 from utils.util import max_body, randStr
 
 red_auth_token = redis.StrictRedis.from_url(
     url=config.REDIS_URL, db=6, charset="utf-8", decode_responses=True)
+
 
 
 class ApiLogin:
@@ -62,7 +63,6 @@ class ApiLogin:
 
         else:
             raise falcon.HTTPBadRequest()
-
     def on_delete(self, req, resp):
 
         payload = req.context['user']['user']
@@ -73,6 +73,24 @@ class ApiLogin:
         resp.status = falcon.HTTP_205
 
 
+class ServerStatus:
+    auth = {
+        'auth_disabled': True
+    }
+
+    def on_get(self, req, resp):
+
+        server_status = api_cache.server_status()
+
+        if isinstance(server_status, str):
+            resp.body = server_status
+            resp.media = falcon.MEDIA_JSON
+            resp.status = falcon.HTTP_200
+            return True
+        raise falcon.HTTPInternalServerError(
+            description='something error ?')
+
+      
 class DeleteAllToken:
 
     def on_delete(self, req, resp):
@@ -82,3 +100,4 @@ class DeleteAllToken:
             red_auth_token.delete(key)
 
         resp.status = falcon.HTTP_205
+
