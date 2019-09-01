@@ -3,6 +3,7 @@ from auth import auth_middleware
 from view import api
 from view import user
 from view import bus
+from view import news
 # pylint: disable=invalid-name
 app = falcon.API(middleware=[auth_middleware])
 
@@ -19,3 +20,4 @@ app.add_route('/user/room/list', user.userRoomList())
 app.add_route('/user/empty-room/info', user.userQueryEmptyRoom())
 app.add_route('/server/info', api.ServerStatus())
 app.add_route('/bus/timetables', bus.busTimeTable())
+app.add_route('/news/school', news.acadNews())
