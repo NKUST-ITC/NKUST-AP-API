@@ -17,6 +17,9 @@ class busUserReservations:
             username=payload['username'])
 
         if isinstance(result, str):
+            if len(result) < 50:
+                resp.status = falcon.HTTP_204
+                return True
             resp.body = result
             resp.media = falcon.MEDIA_JSON
             resp.status = falcon.HTTP_200
