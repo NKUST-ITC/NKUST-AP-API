@@ -70,15 +70,15 @@ class userMidtermAlerts:
     def on_get(self, req, resp):
         # jwt payload
         payload = req.context['user']['user']
-        if req.get_param('year') == None and req.get_param('value') == None:
+        if req.get_param('year') == None and req.get_param('semester') == None:
             raise falcon.HTTPBadRequest(description='params error')
 
-        if len(req.get_param('year')) > 4 or len(req.get_param('value')) > 2:
+        if len(req.get_param('year')) > 4 or len(req.get_param('semester')) > 2:
             raise falcon.HTTPBadRequest(description='params error')
 
         midterm_alerts_dict = ap_cache.midterm_alerts(
             username=payload['username'],
-            year=req.get_param('year'), semester=req.get_param('value'))
+            year=req.get_param('year'), semester=req.get_param('semester'))
 
         if isinstance(midterm_alerts_dict, dict):
             resp.media = midterm_alerts_dict
@@ -98,15 +98,15 @@ class userScore:
     def on_get(self, req, resp):
         # jwt payload
         payload = req.context['user']['user']
-        if req.get_param('year') == None and req.get_param('value') == None:
+        if req.get_param('year') == None and req.get_param('semester') == None:
             raise falcon.HTTPBadRequest(description='params error')
 
-        if len(req.get_param('year')) > 4 or len(req.get_param('value')) > 2:
+        if len(req.get_param('year')) > 4 or len(req.get_param('semester')) > 2:
             raise falcon.HTTPBadRequest(description='params error')
 
         score_dict = ap_cache.score(
             username=payload['username'],
-            year=req.get_param('year'), semester=req.get_param('value'))
+            year=req.get_param('year'), semester=req.get_param('semester'))
 
         if isinstance(score_dict, dict):
             resp.media = score_dict
@@ -126,15 +126,15 @@ class userCourseTable:
     def on_get(self, req, resp):
         # jwt payload
         payload = req.context['user']['user']
-        if req.get_param('year') == None and req.get_param('value') == None:
+        if req.get_param('year') == None and req.get_param('semester') == None:
             raise falcon.HTTPBadRequest(description='params error')
 
-        if len(req.get_param('year')) > 4 or len(req.get_param('value')) > 2:
+        if len(req.get_param('year')) > 4 or len(req.get_param('semester')) > 2:
             raise falcon.HTTPBadRequest(description='params error')
 
         course_dict = ap_cache.coursetable(
             username=payload['username'],
-            year=req.get_param('year'), semester=req.get_param('value'))
+            year=req.get_param('year'), semester=req.get_param('semester'))
 
         if isinstance(course_dict, str):
             resp.body = course_dict
@@ -161,15 +161,15 @@ class userReward:
     def on_get(self, req, resp):
         # jwt payload
         payload = req.context['user']['user']
-        if req.get_param('year') == None and req.get_param('value') == None:
+        if req.get_param('year') == None and req.get_param('semester') == None:
             raise falcon.HTTPBadRequest(description='params error')
 
-        if len(req.get_param('year')) > 4 or len(req.get_param('value')) > 2:
+        if len(req.get_param('year')) > 4 or len(req.get_param('semester')) > 2:
             raise falcon.HTTPBadRequest(description='params error')
 
         reward_dict = ap_cache.reward(
             username=payload['username'],
-            year=req.get_param('year'), semester=req.get_param('value'))
+            year=req.get_param('year'), semester=req.get_param('semester'))
         if isinstance(reward_dict, dict):
             resp.media = reward_dict
             resp.status = falcon.HTTP_200
