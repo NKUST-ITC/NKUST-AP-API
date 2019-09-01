@@ -10,7 +10,7 @@ red_news = redis.StrictRedis.from_url(
     url=config.REDIS_URL, db=8, charset="utf-8", decode_responses=True)
 
 
-def get_news(all_news, news_id):
+def get_news(news_id, all_news=None):
     """get a news.
 
     Args:
@@ -22,6 +22,8 @@ def get_news(all_news, news_id):
         [bool]: False
         [None]: not found news.
     """
+    if not all_news:
+        all_news = _get_all_news()
     if len(all_news) < 1:
         return None
     temp_news_index = -1
@@ -56,7 +58,7 @@ def get_news(all_news, news_id):
 def get_all_news():
     # public
     all_news_data = _get_all_news()
-    return [get_news(all_news_data, i['id']) for i in all_news_data]
+    return [get_news(news_id=i['id'], all_news=all_news_data) for i in all_news_data]
 
 
 def _get_all_news():
