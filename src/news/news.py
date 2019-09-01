@@ -150,6 +150,7 @@ def add_news(**kwargs):
         "title": title,
         "id": news_id,
         "publishedAt": datetime.datetime.utcnow().isoformat(timespec="seconds")+"Z",
+        "weight": kwargs.get('weight', 0),
         "imgUrl": kwargs.get('img_url', None),
         "url": kwargs.get('url', None),
         "description": kwargs.get('description', None)
