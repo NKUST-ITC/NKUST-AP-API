@@ -8,6 +8,9 @@ from utils.config import JWT_EXPIRE_TIME
 red_auth = redis.StrictRedis.from_url(
     url=REDIS_URL, db=4, charset="utf-8", decode_responses=True)
 
+red_auth_token = redis.StrictRedis.from_url(
+    url=REDIS_URL, db=6, charset="utf-8", decode_responses=True)
+
 if red_auth.exists('secret_key'):
     SECRET_KEY = red_auth.get('secret_key')
 else:
@@ -25,7 +28,13 @@ def user_loader(client_submitted_jwt):
     Returns:
         [dict]: after check raw_data
     """
-    return client_submitted_jwt
+    redis_token_name = "{username}_{token}".format(
+        username=client_submitted_jwt['user']['username'],
+        token=client_submitted_jwt['user']['token'])
+
+    if red_auth_token.exists(redis_token_name):
+        return client_submitted_jwt
+    return False
 
 
 jwt_auth = JWTAuthBackend(user_loader,
