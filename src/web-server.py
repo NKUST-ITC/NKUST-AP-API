@@ -2,6 +2,7 @@ import falcon
 from auth import auth_middleware
 from view import api
 from view import user
+from view import leave
 from view import bus
 from view import news
 # pylint: disable=invalid-name
@@ -18,6 +19,8 @@ app.add_route('/user/reward-and-penalty', user.userReward())
 # app.add_route('/user/graduation-threshold', user.userGraduation())
 app.add_route('/user/room/list', user.userRoomList())
 app.add_route('/user/empty-room/info', user.userQueryEmptyRoom())
+app.add_route('/leaves', leave.leave_list())
+app.add_route('/bus/reservations', bus.busUserReservations())
 app.add_route('/bus/timetables', bus.busTimeTable())
 app.add_route('/server/info', api.ServerStatus())
 app.add_route('/bus/reservations', bus.busUserReservations())
