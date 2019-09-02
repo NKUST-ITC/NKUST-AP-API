@@ -168,3 +168,40 @@ def bus_reservations_record(username):
         return error_code.CACHE_BUS_USER_ERROR
     # return error code
     return result
+
+
+def bus_reserve_book(username, kid, action):
+    """User reservations record query, use config.CACHE_BUS_TIMETABLE_EXPIRE_TIME
+    to expire data.
+    Args:
+        username ([str]): webap username
+    Returns:
+        [dict]: result type is json.
+        [int]: CACHE_BUS_COOKIE_ERROR(612)
+               CACHE_BUS_USER_ERROR(613)
+               BUS_TIMEOUT_ERROR(604)
+               BUS_ERROR(605)
+    """
+
+    if not red_bin.exists('bus_cookie_%s' % username):
+        return error_code.CACHE_BUS_COOKIE_ERROR
+
+    session = requests.session()
+    session.cookies = pickle.loads(red_bin.get('bus_cookie_%s' % username))
+    result = bus_crawler.book(session=session, kid=kid, action=action)
+
+    if isinstance(result, dict):
+        if result['success']:
+            # clear all bus cache, because data changed.
+            for key in red_string.scan_iter('bus_*_{username}*'.format(username=username)):
+                red_string.delete(key)
+            return result
+        else:
+            return result
+
+    elif result == error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER:
+        # clear user cache cookie
+        red_bin.delete('bus_cookie_%s' % username)
+        return error_code.CACHE_BUS_USER_ERROR
+    # return error code
+    return result
