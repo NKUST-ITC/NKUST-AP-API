@@ -194,6 +194,41 @@ def reserve(session):
 
     return result
 
+
+def book(session, kid, action=True):
+    """book bus or unbook bus.
+
+    Args:
+        session ([request.session]): requests session
+        kid ([int]): busId or reserveId
+        action (bool, optional):  Defaults to True.
+            True is book,
+            False is unbook.
+
+    Returns:
+        [dict]: return data from NKUST.
+
+        int]:  BUS_TIMEOUT_ERROR(604)
+               BUS_ERROR(605)
+    """
+
+    if action:
+        URL = BUS_BOOK_URL
+        data = "{'busId': %s}" % (kid)
+    else:
+        URL = BUS_UNBOOK_URL
+        data = "{'reserveId': %s}" % (kid)
+    try:
+        resource = session.post(
+            url=URL, data=data, timeout=BUS_TIMEOUT).json()
+
+    except requests.exceptions.Timeout:
+        return error_code.BUS_TIMEOUT_ERROR
+    except Exception as e:
+        return error_code.BUS_ERROR
+
+    return resource
+
   
 def get_violation_records(session):
     """get user violation records list.
@@ -236,3 +271,4 @@ def get_violation_records(session):
         data.append(temp)
     return data
 
+ 
