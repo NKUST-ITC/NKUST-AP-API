@@ -72,9 +72,10 @@ def get_leave_list(username, year, semester):
 
     list_data = leave_crawler.get_leave_list(
         session=session, year=year, semester=semester)
-    if isinstance(list_data, list):
+    if isinstance(list_data, list) and len(list_data) == 2:
         return_data = {
-            "data": list_data
+            "data": list_data[0],
+            "timeCodes": list_data[1]
         }
         json_dumps_data = json.dumps(return_data, ensure_ascii=False)
         red_string.set(

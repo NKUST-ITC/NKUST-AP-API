@@ -93,6 +93,8 @@ def get_leave_list(session, year, semester):
     root = etree.HTML(r.text)
 
     tr = root.xpath("//table")[-1]
+    timecode = root.xpath('//table[@class="mGridDetail"]/tr[1]/th')
+    timecode = [i.text for i in timecode][4:]
 
     leave_list = []
 
@@ -130,4 +132,4 @@ def get_leave_list(session, year, semester):
         leave["sections"] = list(
             filter(lambda x: x["reason"], leave["sections"]))
         result.append(leave)
-    return result
+    return [result, timecode]
