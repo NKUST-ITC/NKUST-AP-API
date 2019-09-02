@@ -85,7 +85,7 @@ def login(session, username, password):
 
     return error_code.BUS_ERROR
 
-
+  
 def query(session, year, month, day):
     """query bus timetable.
 
@@ -228,3 +228,47 @@ def book(session, kid, action=True):
         return error_code.BUS_ERROR
 
     return resource
+
+  
+def get_violation_records(session):
+    """get user violation records list.
+
+    Args:
+        session ([request.session]): requests session
+
+    Returns:
+        [list]: violation_records data.
+
+        [int]: BUS_TIMEOUT_ERROR(604)
+               BUS_ERROR(605)
+    """
+    data = {
+        'page': 1,
+        'start': 0,
+        'limit': 999
+    }
+    try:
+        res = session.post(url=BUS_FINE_URL, data=data).json()
+
+    except requests.exceptions.Timeout:
+        return error_code.BUS_TIMEOUT_ERROR
+    except Exception as e:
+        return error_code.BUS_ERROR
+
+    data = []
+
+    for i in res['data']:
+        temp = {}
+
+        temp['time'] = _get_real_time(i['runBus'])
+        temp['startStation'] = i['start']
+        temp['homeCharteredBus'] = False
+        temp['amountend'] = int(i['costMoney'])
+        temp['isPayment'] = i['receipt']
+        if i['SpecialTrain'] == '1':
+            temp['homeCharteredBus'] = True
+
+        data.append(temp)
+    return data
+
+ 
