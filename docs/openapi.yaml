@@ -776,8 +776,8 @@ paths:
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
-        404:
-          description: Page not found
+        403:
+          description:  User can't use bus service, maybe user is from  different campus.
         500:
           description: Internal Server Error
         503:
@@ -828,8 +828,8 @@ paths:
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
-        404:
-          description: Page not found
+        403:
+          description:  User can't use bus service, maybe user is from  different campus.
         500:
           description: Internal Server Error
         503:
@@ -858,6 +858,8 @@ paths:
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
+        403:
+          description:  User can't use bus service, maybe user is from  different campus.
         500:
           description: Internal Server Error
         503:
@@ -886,6 +888,8 @@ paths:
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
+        403:
+          description:  User can't use bus service, maybe user is from  different campus.
         500:
           description: Internal Server Error
         503:
@@ -933,8 +937,8 @@ paths:
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
-        404:
-          description: Page not found
+        403:
+          description:  User can't use bus service, maybe user is from  different campus.
         500:
           description: Internal Server Error
         503:
