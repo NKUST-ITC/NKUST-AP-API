@@ -917,8 +917,19 @@ paths:
             example: "3241"
         required: true
       responses:
-        204:
-          description: return reservations by year and semester
+        200:
+          description: success for unbook bus.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description:   status.
+              example: {
+                "success":true
+              }
         400: 
           description: Bad Request
         401:
