@@ -183,6 +183,13 @@ paths:
       tags:
       - News
       summary: get news 
+      parameters: 
+      - in: query
+        name: "page"
+        description: "page number, start from zero."
+        schema:
+            type: integer
+            example: "0"
       responses:
         200:
           description: return school news
