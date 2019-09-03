@@ -186,10 +186,10 @@ paths:
       parameters: 
       - in: query
         name: "page"
-        description: "page number, start from zero."
+        description: "page number, start from one."
         schema:
             type: integer
-            example: "0"
+            example: "1"
       responses:
         200:
           description: return school news
