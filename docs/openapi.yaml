@@ -871,6 +871,30 @@ paths:
           description: Token expired or Unauthorized Access
         403:
           description:  User can't use bus service, maybe user is from  different campus.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: integer
+                    description:  fail status code.
+                  description:
+                    type: string
+                    description: error message.
+              examples: 
+                too late to book: 
+                  value:
+                    errorCode: 451
+                    description: "超過預約時間"
+                did not pay the fine for violation: 
+                  value:
+                    errorCode: 452
+                    description: "罰款尚未繳清"
+                any other error:
+                  value:
+                    errorCode: 453
+                    description: "無法預約，未知錯誤"
         500:
           description: Internal Server Error
         503:
