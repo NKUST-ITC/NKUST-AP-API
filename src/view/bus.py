@@ -126,8 +126,35 @@ class busUserReservations:
             username=payload['username'], kid=req.get_param('busId'), action=True)
 
         if isinstance(result, dict):
-            resp.media = result
-            resp.status = falcon.HTTP_200
+            if not result['success']:
+                if result['code'] == 400 and result['message'].find('重覆預約') > 0:
+                    resp.media = {
+                        "errorCode": 453,
+                        "description": "重複預約"
+                    }
+                    resp.status = falcon.HTTP_403
+
+                elif result['code'] == 400 and result['message'].find('罰款') > 0:
+                    resp.media = {
+                        "errorCode": 452,
+                        "description": "罰款尚未繳清"
+                    }
+                    resp.status = falcon.HTTP_403
+                elif result['code'] == 400 and result['message'].find('預約時間') > 0:
+                    resp.media = {
+                        "errorCode": 451,
+                        "description": "超過預約時間"
+                    }
+                    resp.status = falcon.HTTP_403
+                else:
+                    resp.media = {
+                        "errorCode": 454,
+                        "description": "無法預約，未知錯誤"
+                    }
+                    resp.status = falcon.HTTP_403
+            elif result['success']:
+                resp.media = {'success': True}
+                resp.status = falcon.HTTP_200
             return True
         elif isinstance(result, int):
             if result == error_code.CACHE_BUS_COOKIE_ERROR:
