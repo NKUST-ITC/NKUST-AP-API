@@ -891,9 +891,13 @@ paths:
                   value:
                     errorCode: 452
                     description: "罰款尚未繳清"
-                any other error:
+                repeat book:
                   value:
                     errorCode: 453
+                    description: "重複預約"
+                any other error:
+                  value:
+                    errorCode: 454
                     description: "無法預約，未知錯誤"
         500:
           description: Internal Server Error
