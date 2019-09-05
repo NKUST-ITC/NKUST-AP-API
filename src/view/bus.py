@@ -93,8 +93,15 @@ class busUserReservations:
             username=payload['username'], kid=req.get_param('cancelKey'), action=False)
 
         if isinstance(result, dict):
-            resp.media = result
-            resp.status = falcon.HTTP_200
+            if not result['success']:
+                resp.media = {
+                    "errorCode": 454,
+                    "description": "取消失敗，未知錯誤"
+                }
+                resp.status = falcon.HTTP_403
+            elif result['success']:
+                resp.media = {'success': True}
+                resp.status = falcon.HTTP_200
             return True
         elif isinstance(result, int):
             if result == error_code.CACHE_BUS_COOKIE_ERROR:
