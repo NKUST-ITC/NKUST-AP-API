@@ -225,7 +225,6 @@ leave_test.py
 test_page.html
 html/
 src/config.py
-src/gunicorn_cfg.py
 
 \.vscode/
 
@@ -233,3 +232,4 @@ src/gunicorn_cfg.py
 caddy/Caddyfile
 \.env
 venv/
+data/certbot/
