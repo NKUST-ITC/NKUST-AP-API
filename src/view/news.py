@@ -16,6 +16,8 @@ class acadNews:
             raise falcon.HTTPBadRequest(description='params error')
         try:
             int(req.get_param('page'))
+            if int(req.get_param('page')) < 1:
+                raise falcon.HTTPBadRequest(description='params error')
         except:
             raise falcon.HTTPBadRequest(description='params error')
 

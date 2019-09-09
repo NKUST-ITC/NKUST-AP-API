@@ -30,7 +30,7 @@ def acad_cache(page):
     if red_string.exists(acad_cache_name):
         return red_string.get(acad_cache_name)
 
-    notification_data = sac_crawler.acad(page=page)
+    notification_data = sac_crawler.acad(page=page-1)
     if isinstance(notification_data, list):
         return_data = {
             'data': {
