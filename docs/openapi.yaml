@@ -878,7 +878,12 @@ paths:
                 properties:
                   errorCode:
                     type: integer
-                    description:  fail status code.
+                    description: fail status code.|
+                                 451,超過預約時間|
+                                 452,罰款尚未繳清|
+                                 453,重複預約|
+                                 454,無法預約，未知錯誤(任何其他無法預約的原因)
+                                 
                   description:
                     type: string
                     description: error message.
@@ -947,7 +952,9 @@ paths:
                 properties:
                   errorCode:
                     type: integer
-                    description:  fail status code.
+                    description: fail status code.|
+                                 454,取消預約失敗包含(任何其他無法取消的原因)
+                                 
                   description:
                     type: string
                     description: error message.
