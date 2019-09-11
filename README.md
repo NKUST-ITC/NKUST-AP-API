@@ -20,6 +20,12 @@ API Docs
 
 Quick start
 ---
+env
+```bash
+export NEWS_ADMIN=1106111111;1105167456
+```
+可以更新最新消息的使用者
+---
 Use gunicorn with default config.
 
 ```bash
