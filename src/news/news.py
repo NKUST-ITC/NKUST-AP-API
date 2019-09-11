@@ -207,7 +207,7 @@ def update_news(news_id=None, **kwargs):
 
     news_data = {
         "title": kwargs.get('title', origin_news.get('title', "")),
-        "id": news_id,
+        "id": int(news_id),
         "publishedAt": datetime.datetime.utcnow().isoformat(timespec="seconds")+"Z",
         "weight": kwargs.get('weight', origin_news.get('weight', 0)),
         "imgUrl": kwargs.get('img_url', origin_news.get('imgUrl', None)),
