@@ -122,7 +122,7 @@ def add_news(**kwargs):
 
     Kwargs:
         title   [str]:     Required.
-        img_url [str]:     Optional.
+        imgUrl [str]:     Optional.
         url     [str]:     Link, optional.
         weight  [int]:     news weight,optional.
         description [str]: Optional.
@@ -154,7 +154,7 @@ def add_news(**kwargs):
         "id": news_id,
         "publishedAt": datetime.datetime.utcnow().isoformat(timespec="seconds")+"Z",
         "weight": kwargs.get('weight', 0),
-        "imgUrl": kwargs.get('img_url', None),
+        "imgUrl": kwargs.get('imgUrl', None),
         "url": kwargs.get('url', None),
         "description": kwargs.get('description', None)
     }
