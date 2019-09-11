@@ -857,14 +857,58 @@ paths:
             example: "12345"
         required: true
       responses:
-        204:
-          description: return reservations by year and semester
+        200:
+          description: success for book a bus.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description:   status.
+              example: {
+                "success":true
+              }
         400: 
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
         403:
           description:  User can't use bus service, maybe user is from  different campus.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: integer
+                    description: fail status code.|
+                                 451,超過預約時間|
+                                 452,罰款尚未繳清|
+                                 453,重複預約|
+                                 454,無法預約，未知錯誤(任何其他無法預約的原因)
+                                 
+                  description:
+                    type: string
+                    description: error message.
+              examples: 
+                too late to book: 
+                  value:
+                    errorCode: 451
+                    description: "超過預約時間"
+                did not pay the fine for violation: 
+                  value:
+                    errorCode: 452
+                    description: "罰款尚未繳清"
+                repeat book:
+                  value:
+                    errorCode: 453
+                    description: "重複預約"
+                any other error:
+                  value:
+                    errorCode: 454
+                    description: "無法預約，未知錯誤"
         500:
           description: Internal Server Error
         503:
@@ -887,14 +931,43 @@ paths:
             example: "3241"
         required: true
       responses:
-        204:
-          description: return reservations by year and semester
+        200:
+          description: success for unbook bus.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description:   status.
+              example: {
+                "success":true
+              }
         400: 
           description: Bad Request
         401:
           description: Token expired or Unauthorized Access
         403:
           description:  User can't use bus service, maybe user is from  different campus.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: integer
+                    description: fail status code.|
+                                 454,取消預約失敗包含(任何其他無法取消的原因)
+                                 
+                  description:
+                    type: string
+                    description: error message.
+              examples: 
+                any other error:
+                  value:
+                    errorCode: 454
+                    description: "取消預約失敗"
         500:
           description: Internal Server Error
         503:
