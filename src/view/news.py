@@ -1,8 +1,13 @@
+import json
+
 import falcon
 
 from cache import school_announcements_cache as sac_cache
-from utils import error_code
 from news import news
+from utils import error_code
+from utils.util import (falcon_admin_required, max_body,
+                        webap_login_cache_required)
+
 
 class acadNews:
 
@@ -102,4 +107,29 @@ class AnnouncementsAll:
             resp.status = falcon.HTTP_200
             return True
 
+        raise falcon.HTTPInternalServerError()
+
+
+class NewsAdd:
+
+    @falcon.before(max_body(64 * 1024))
+    @falcon.before(webap_login_cache_required)
+    @falcon.before(falcon_admin_required)
+    def on_post(self, req, resp):
+
+        req_json = json.loads(req.bounded_stream.read(), encoding='utf-8')
+        # check json key
+        for key in req_json.keys():
+            if key not in ['title', 'description', 'imgUrl', 'url', 'weight', 'expireTime']:
+                raise falcon.HTTPBadRequest()
+
+        result = news.add_news(**req_json)
+        if isinstance(result, int):
+            resp.media = {
+                'id': result
+            }
+            resp.status = falcon.HTTP_200
+            return True
+        elif result is False:
+            raise falcon.HTTPBadRequest()
         raise falcon.HTTPInternalServerError()

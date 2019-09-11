@@ -29,4 +29,4 @@ app.add_route('/news/announcements', news.Announcements())
 app.add_route('/news/announcements/{news_id}', news.AnnouncementsById())
 app.add_route('/news/announcements/all', news.AnnouncementsAll())
 app.add_route('/news/school', news.acadNews())
-
+app.add_route('/news/add', news.NewsAdd())
