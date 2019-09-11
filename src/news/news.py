@@ -4,7 +4,7 @@ import json
 
 import redis
 
-from utils import config
+from utils import config, error_code
 
 red_news = redis.StrictRedis.from_url(
     url=config.REDIS_URL, db=8, charset="utf-8", decode_responses=True)
@@ -124,6 +124,7 @@ def add_news(**kwargs):
         title   [str]:     Required.
         img_url [str]:     Optional.
         url     [str]:     Link, optional.
+        weight  [int]:     news weight,optional.
         description [str]: Optional.
         expireTime  [str]: ISO 8601, must have timezone at last character.
 
@@ -168,9 +169,60 @@ def add_news(**kwargs):
     return True
 
 
-def update_news(news_id):
-    pass
+def update_news(news_id=None, **kwargs):
+    """Update news.
 
+    Args:
+        news_id ([int]): news id.
 
-def remove_news(news_id):
-    pass
+    Kwargs:
+        title   [str]:     Optional.
+        img_url [str]:     Optional.
+        url     [str]:     Link, optional.
+        weight  [int]:     news weight,optional.
+        description [str]: Optional.
+        expireTime  [str]: ISO 8601, must have timezone at last character.
+
+            2019-09-2T11:33:29H
+            2019-09-2T11:33:29Z
+            2019-09-2T11:33:29A
+            ...
+
+    Returns:
+        [bool]: True
+        [int]: NEWS_NOT_FOUND
+               NEWS_ERROR
+               NEWS_LOSS_ARG
+    """
+    if news_id == None:
+        return error_code.NEWS_ERROR
+    title = kwargs.get('title', False)
+    if not title:
+        return error_code.NEWS_LOSS_ARG
+
+    news_name = "news_{news_id}".format(news_id=news_id)
+    if not red_news.exists(news_name):
+        return error_code.NEWS_NOT_FOUND
+    origin_news = json.loads(red_news.get(news_name))
+
+    news_data = {
+        "title": kwargs.get('title', origin_news.get('title', "")),
+        "id": news_id,
+        "publishedAt": datetime.datetime.utcnow().isoformat(timespec="seconds")+"Z",
+        "weight": kwargs.get('weight', origin_news.get('weight', 0)),
+        "imgUrl": kwargs.get('img_url', origin_news.get('imgUrl', None)),
+        "url": kwargs.get('url', origin_news.get('url', None)),
+        "description": kwargs.get('description', origin_news.get('description', None))
+    }
+    expire_time_seconds = kwargs.get(
+        'expireTime', origin_news.get('expireTime', None))
+    if kwargs.get('expireTime', origin_news.get('expireTime', False)):
+        utc = time_format(kwargs.get(
+            'expireTime', origin_news.get('expireTime', False)))
+        expire_time_seconds = (utc-datetime.datetime.utcnow()).seconds
+    data_dumps = json.dumps(news_data, ensure_ascii=False)
+
+    red_news.set(name=news_name,
+                 value=data_dumps, ex=expire_time_seconds)
+    return True
+
