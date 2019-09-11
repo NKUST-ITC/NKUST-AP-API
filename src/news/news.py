@@ -226,3 +226,24 @@ def update_news(news_id=None, **kwargs):
                  value=data_dumps, ex=expire_time_seconds)
     return True
 
+
+def remove_news(news_id=None):
+    """remove news.
+
+    Args:
+        news_id ([int]): news id.
+
+    Returns:
+        [bool]: True
+        [int]: NEWS_NOT_FOUND
+               NEWS_ERROR
+    """
+    if news_id == None:
+        return error_code.NEWS_ERROR
+
+    news_name = "news_{news_id}".format(news_id=news_id)
+    if not red_news.exists(news_name):
+        return error_code.NEWS_NOT_FOUND
+
+    red_news.delete(news_name)
+    return True
