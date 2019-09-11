@@ -133,3 +133,32 @@ class NewsAdd:
         elif result is False:
             raise falcon.HTTPBadRequest()
         raise falcon.HTTPInternalServerError()
+
+
+class NewsUpdate:
+
+    @falcon.before(max_body(64 * 1024))
+    @falcon.before(webap_login_cache_required)
+    @falcon.before(falcon_admin_required)
+    def on_put(self, req, resp, news_id):
+
+        req_json = json.loads(req.bounded_stream.read(), encoding='utf-8')
+        # check json key
+        for key in req_json.keys():
+            if key not in ['title', 'description', 'imgUrl', 'url', 'weight', 'expireTime']:
+                raise falcon.HTTPBadRequest()
+
+        result = news.update_news(news_id=news_id, **req_json)
+        if result is True:
+            resp.status = falcon.HTTP_204
+            return True
+
+        if isinstance(result, int):
+            if result == error_code.NEWS_ERROR:
+                raise falcon.HTTPBadRequest()
+            elif result == error_code.NEWS_NOT_FOUND:
+                raise falcon.HTTPForbidden(description='not found news')
+            elif result == error_code.NEWS_LOSS_ARG:
+                raise falcon.HTTPBadRequest()
+
+        raise falcon.HTTPInternalServerError()
