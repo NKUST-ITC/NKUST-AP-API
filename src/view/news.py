@@ -162,3 +162,22 @@ class NewsUpdate:
                 raise falcon.HTTPBadRequest()
 
         raise falcon.HTTPInternalServerError()
+
+
+class NewsRemove:
+
+    @falcon.before(webap_login_cache_required)
+    @falcon.before(falcon_admin_required)
+    def on_delete(self, req, resp, news_id):
+
+        result = news.remove_news(news_id=news_id)
+        if result is True:
+            resp.status = falcon.HTTP_204
+            return True
+
+        if isinstance(result, int):
+            if result == error_code.NEWS_ERROR:
+                raise falcon.HTTPBadRequest()
+            elif result == error_code.NEWS_NOT_FOUND:
+                raise falcon.HTTPForbidden(description='not found news')
+        raise falcon.HTTPInternalServerError()
