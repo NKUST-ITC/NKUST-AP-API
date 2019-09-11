@@ -280,16 +280,8 @@ paths:
                 
                 
       responses:
-        200:
-          description: success, return news id. 
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-              example: {"id":2}
+        204:
+          description: success. 
         401:
           description: No permission (Admin)
         400:
