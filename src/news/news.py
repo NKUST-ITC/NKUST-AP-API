@@ -166,7 +166,7 @@ def add_news(**kwargs):
 
     red_news.set(name=news_name.format(news_id=news_id),
                  value=data_dumps, ex=expire_time_seconds)
-    return True
+    return news_id
 
 
 def update_news(news_id=None, **kwargs):
