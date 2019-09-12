@@ -178,7 +178,7 @@ paths:
           description: Page not found
         500:
           description: Internal Server Error
-  /news/add:
+  /news/announcements/add:
     post:
       tags:
       - News
@@ -233,7 +233,7 @@ paths:
           description: Loss some data.
         500:
           description: Something error.
-  /news/update/{id}:
+  /news/announcements/update/{id}:
     parameters: 
       - in: path
         name: "id"
@@ -290,7 +290,7 @@ paths:
           description: Not found news.
         500:
           description: Something error.
-  /news/remove/{id}:
+  /news/announcements/remove/{id}:
     parameters: 
       - in: path
         name: "id"
