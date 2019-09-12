@@ -50,7 +50,7 @@ class ApiLogin:
             JWT_token = jwt_auth.get_auth_token(user_payload=req_json)
             resp.media = {
                 'token': JWT_token,
-                'expireTime': datetime.datetime.isoformat(datetime.datetime.now() + datetime.timedelta(seconds=config.JWT_EXPIRE_TIME))
+                'expireTime': (datetime.datetime.utcnow() + datetime.timedelta(seconds=config.JWT_EXPIRE_TIME)).isoformat(timespec='seconds')+"Z"
             }
             resp.status = falcon.HTTP_200
             return True
