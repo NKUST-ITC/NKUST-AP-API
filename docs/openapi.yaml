@@ -280,8 +280,17 @@ paths:
                 
                 
       responses:
-        204:
+        200:
           description: success. 
+          content:
+            application/json:    
+              schema:            
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:   
+                  message: "Update success, id 3."
         401:
           description: No permission (Admin)
         400:
@@ -304,8 +313,17 @@ paths:
       - News
       summary: Remove news.
       responses:
-        204:
+        200:
           description: Removed.
+          content:
+            application/json:    
+              schema:            
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:   
+                  message: "Remove success, id 3."
         401:
           description: No permission (Admin)
         403:
