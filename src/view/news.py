@@ -150,7 +150,10 @@ class NewsUpdate:
 
         result = news.update_news(news_id=news_id, **req_json)
         if result is True:
-            resp.status = falcon.HTTP_204
+            resp.media = {
+                "message": "Update success,id {id}.".format(id=news_id)
+            }
+            resp.status = falcon.HTTP_200
             return True
 
         if isinstance(result, int):
@@ -172,7 +175,10 @@ class NewsRemove:
 
         result = news.remove_news(news_id=news_id)
         if result is True:
-            resp.status = falcon.HTTP_204
+            resp.media = {
+                "message": "Remove success,id {id}.".format(id=news_id)
+            }
+            resp.status = falcon.HTTP_200
             return True
 
         if isinstance(result, int):
