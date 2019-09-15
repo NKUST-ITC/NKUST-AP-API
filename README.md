@@ -50,7 +50,7 @@ Quick start
 
 ```bash
 $ python3 -m venv venv
-$ source venv...
+$ source venv/bin/activate
 $ pip3 install -r requirement.txt
 $ gunicorn web-server:app
 ```
@@ -61,7 +61,7 @@ $ gunicorn web-server:app
 
 ```bash
 $ python3 -m venv venv
-$ source venv...
+$ source venv/bin/activate
 $ pip3 install -r requirement.txt
 $ gunicorn -c gunicorn_config.py web-server:app
 ```
