@@ -1660,9 +1660,13 @@ components:
         token:
             type: string
             description: JWT token
+        isAdmin:
+            type: boolean
+            description: Is admin ? 
       example:   
         expireTime: "2019-03-16T20:16:04+08:00"
         token: "I6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtIjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJ"
+        isAdmin: False
     leaveSubmit:      
       type: object
       properties:
