@@ -49,10 +49,10 @@ Quick start
 使用gunicorn預設 (for debug)
 
 ```bash
-python3 -m venv venv
-source venv...
-pip3 install -r requirement.txt
-gunicorn web-server:app
+$ python3 -m venv venv
+$ source venv...
+$ pip3 install -r requirement.txt
+$ gunicorn web-server:app
 ```
 
 
@@ -60,10 +60,10 @@ gunicorn web-server:app
 使用gonicorn cfg (release)
 
 ```bash
-python3 -m venv venv
-source venv...
-pip3 install -r requirement.txt
-gunicorn -c gunicorn_config.py web-server:app
+$ python3 -m venv venv
+$ source venv...
+$ pip3 install -r requirement.txt
+$ gunicorn -c gunicorn_config.py web-server:app
 ```
 
 
