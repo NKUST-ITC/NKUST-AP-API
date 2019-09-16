@@ -178,6 +178,158 @@ paths:
           description: Page not found
         500:
           description: Internal Server Error
+  /news/announcements/add:
+    post:
+      tags:
+      - News
+      summary: Add news to redis
+      requestBody:
+        content:
+          application/json:    
+            schema:            
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: (Required)
+                imgUrl:
+                  type: string
+                  description: (Optional)
+                url:
+                  type: string
+                  description: (Optional)
+                description:
+                  type: string
+                  description: (Optional)
+                weight:
+                  type: integer
+                  description: (Optional. default is 0)
+                expireTime:
+                  type: string
+                  description: iso time format. you can use any timezone to set it! (Optional) 
+              example:   
+                title: "宿舍直達高鐵站專車"
+                description: "從燕巢宿舍直接發車，不用再走到公車站排..."
+                imgUrl: "https://i.imgur.com/FFm9wGR.jpg"
+                url: "https://google.com"
+                weight: 10
+                expireTime: "	2019-09-11T17:33:20Z"
+                
+                
+      responses:
+        200:
+          description: success, return news id. 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+              example: {"id":4}
+        401:
+          description: No permission (Admin)
+        400:
+          description: Loss some data.
+        500:
+          description: Something error.
+  /news/announcements/update/{id}:
+    parameters: 
+      - in: path
+        name: "id"
+        description: "news id"
+        required: true
+        schema:
+            type: integer
+            format: int64
+    put:
+      tags:
+      - News
+      summary: Update news.
+      requestBody:
+        content:
+          application/json:    
+            schema:            
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: (Required)
+                imgUrl:
+                  type: string
+                  description: (Optional)
+                url:
+                  type: string
+                  description: (Optional)
+                description:
+                  type: string
+                  description: (Optional)
+                weight:
+                  type: integer
+                  description: (Optional. default is 0)
+                expireTime:
+                  type: string
+                  description: iso time format. you can use any timezone to set it! (Optional) 
+              example:   
+                title: "宿舍直達高鐵站專車"
+                description: "從燕巢宿舍直接發車，不用再走到公車站排..."
+                imgUrl: "https://i.imgur.com/FFm9wGR.jpg"
+                url: "https://google.com"
+                weight: 10
+                expireTime: "	2019-09-11T17:33:20Z"
+                
+                
+      responses:
+        200:
+          description: success. 
+          content:
+            application/json:    
+              schema:            
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:   
+                  message: "Update success, id 3."
+        401:
+          description: No permission (Admin)
+        400:
+          description: Loss some data.
+        403:
+          description: Not found news.
+        500:
+          description: Something error.
+  /news/announcements/remove/{id}:
+    parameters: 
+      - in: path
+        name: "id"
+        description: "news id"
+        required: true
+        schema:
+            type: integer
+            format: int64
+    delete:
+      tags:
+      - News
+      summary: Remove news.
+      responses:
+        200:
+          description: Removed.
+          content:
+            application/json:    
+              schema:            
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:   
+                  message: "Remove success, id 3."
+        401:
+          description: No permission (Admin)
+        403:
+          description: Not found news.
+        500:
+          description: Something error.
   /news/school:
     get:
       tags:
@@ -1508,9 +1660,13 @@ components:
         token:
             type: string
             description: JWT token
+        isAdmin:
+            type: boolean
+            description: Is admin ? 
       example:   
         expireTime: "2019-03-16T20:16:04+08:00"
         token: "I6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtIjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJ"
+        isAdmin: False
     leaveSubmit:      
       type: object
       properties:
