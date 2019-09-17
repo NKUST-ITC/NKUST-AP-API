@@ -122,7 +122,8 @@ class NewsAdd:
         for key in req_json.keys():
             if key not in ['title', 'description', 'imgUrl', 'url', 'weight', 'expireTime']:
                 raise falcon.HTTPBadRequest()
-
+        if not isinstance(req_json.get('weight', 0), int):
+            raise falcon.HTTPBadRequest(description='weight wrong type.')
         result = news.add_news(**req_json)
         if isinstance(result, int):
             resp.media = {
@@ -147,7 +148,8 @@ class NewsUpdate:
         for key in req_json.keys():
             if key not in ['title', 'description', 'imgUrl', 'url', 'weight', 'expireTime']:
                 raise falcon.HTTPBadRequest()
-
+        if not isinstance(req_json.get('weight', 0), int):
+            raise falcon.HTTPBadRequest(description='weight wrong type.')
         result = news.update_news(news_id=news_id, **req_json)
         if result is True:
             resp.media = {
