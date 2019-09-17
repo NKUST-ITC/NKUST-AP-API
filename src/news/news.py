@@ -153,7 +153,7 @@ def add_news(**kwargs):
         "title": title,
         "id": news_id,
         "publishedAt": datetime.datetime.utcnow().isoformat(timespec="seconds")+"Z",
-        "weight": kwargs.get('weight', 0),
+        "weight": int(kwargs.get('weight', 0)),
         "imgUrl": kwargs.get('imgUrl', None),
         "url": kwargs.get('url', None),
         "description": kwargs.get('description', None)
@@ -209,7 +209,7 @@ def update_news(news_id=None, **kwargs):
         "title": kwargs.get('title', origin_news.get('title', "")),
         "id": int(news_id),
         "publishedAt": datetime.datetime.utcnow().isoformat(timespec="seconds")+"Z",
-        "weight": kwargs.get('weight', origin_news.get('weight', 0)),
+        "weight": int(kwargs.get('weight', int(origin_news.get('weight', 0)))),
         "imgUrl": kwargs.get('img_url', origin_news.get('imgUrl', None)),
         "url": kwargs.get('url', origin_news.get('url', None)),
         "description": kwargs.get('description', origin_news.get('description', None))
