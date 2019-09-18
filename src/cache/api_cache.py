@@ -63,7 +63,7 @@ def server_status():
         ['git', 'rev-parse', '--short', 'HEAD']).decode("utf-8").strip("\n")
 
     data = {
-        "date": datetime.datetime.now().isoformat(),
+        "date": datetime.datetime.utcnow().isoformat(timespec='seconds')+"Z",
         "commit": git_commit_id,
         "data": [
             {

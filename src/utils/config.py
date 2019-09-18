@@ -6,6 +6,12 @@ try:
 except KeyError:
     REDIS_URL = 'redis://127.0.0.1:6379'
 
+
+try:
+    NEWS_ADMIN = [i for i in os.environ['NEWS_ADMIN'].split(';') if i != ""]
+except KeyError:
+    NEWS_ADMIN = []
+
 JWT_EXPIRE_TIME = 3600
 
 # crawler zone
