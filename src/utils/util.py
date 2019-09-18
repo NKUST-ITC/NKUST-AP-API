@@ -6,7 +6,7 @@ import falcon
 from cache.ap_cache import login as webap_login
 from cache.bus_cache import login as bus_login
 from cache.leave_cache import login as leave_login
-from utils import error_code
+from utils import error_code, config
 
 
 def randStr(lens):
@@ -129,4 +129,32 @@ def leave_login_cache_required(req, resp, resource, params):
     elif login_status == error_code.LEAVE_LOGIN_TIMEOUT:
         # 503
         raise falcon.HTTPServiceUnavailable()
+    raise falcon.HTTPInternalServerError()
+
+
+def falcon_admin_required(req, resp, resource, params):
+    """This function is for falcon.before to use, like a decorator,
+    check user status, for news use.
+
+    Args:
+        req ([type]): falcon default.
+        resp ([type]): falcon default.
+        resource ([type]): falcon default.
+        params ([type]): falcon default.
+
+    Raises:
+        falcon.HTTPUnauthorized: HTTP_401, login fail,or maybe NKUST server is down.
+        falcon.HTTPInternalServerError: HTTP_500, something error.
+
+    Returns:
+        [bool]: True.
+    """
+    # jwt payload
+    payload = req.context['user']['user']
+
+    if payload['username'] in config.NEWS_ADMIN:
+        return True
+    else:
+        # 401
+        raise falcon.HTTPUnauthorized(description='not a admin :( ')
     raise falcon.HTTPInternalServerError()

@@ -34,6 +34,10 @@ Quick start
 ---
 ### By Python
 
+
+
+#### 必須環境變數
+
 請先在local設定/安裝好Redis 
 
 如果Redis有自行調整port或是使用外部的Redis
@@ -43,6 +47,12 @@ Quick start
 `export REDIS_URL=redis://127.0.0.1:6666`
 
 沒有設定會依照Redis預設的`redis://127.0.0.1:6379` 去跑
+
+#### 非必須環境變數
+
+`export NEWS_ADMIN="1106111111;1105293392"`
+
+此環境變數會設定最新消息的管理員，可以透過`;`來新增多位管理員
 
 
 
@@ -155,5 +165,3 @@ Donate
 [![BitCoin donate
 button](http://img.shields.io/bitcoin/donate.png?color=yellow)](https://coinbase.com/checkouts/aa7cf80a2a85b4906cb98fc7b2aad5c5 "Donate
 once-off to this project using BitCoin")
-
-
