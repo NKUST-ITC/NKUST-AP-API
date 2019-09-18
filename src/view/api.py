@@ -52,6 +52,9 @@ class ApiLogin:
                 'token': JWT_token,
                 'expireTime': (datetime.datetime.utcnow() + datetime.timedelta(seconds=config.JWT_EXPIRE_TIME)).isoformat(timespec='seconds')+"Z"
             }
+            resp.media['isAdmin'] = False
+            if req_json['username'] in config.NEWS_ADMIN:
+                resp.media['isAdmin'] = True
             resp.status = falcon.HTTP_200
             return True
         elif login_status == error_code.CACHE_WEBAP_LOGIN_FAIL:
