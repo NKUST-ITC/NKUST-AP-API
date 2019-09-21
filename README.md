@@ -95,7 +95,16 @@ $ gunicorn -c gunicorn_config.py web-server:app
 $ cp env.example .env
 ```
 
-如需要更改redis位置，可以到.env中修改。
+如果有要設定最新消息的使用者可以在`.env`中新增
+
+```
+REDIS_URL=redis://redis:6379/0
+NEWS_ADMIN="1106111111;1105111111"
+```
+
+
+
+如需要更改redis位置，可以到`.env`中修改。
 
 ---
 
