@@ -9,7 +9,8 @@ services:
     - .:/usr/src/app
     environment:
       - REDIS_URL=${REDIS_URL}
-    command: [ "gunicorn","-c","gunicorn_cfg.py","web-server:app"]
+      - NEWS_ADMIN=${NEWS_ADMIN}
+    command: ["gunicorn", "-c", "gunicorn_cfg.py", "web-server:app"]
     networks:
       - redis-net
       - open-net
