@@ -110,9 +110,9 @@ NEWS_ADMIN="1106111111;1105111111"
 
 #### HTTP
 
-設定好以下幾項設定檔案
+(開設http API)
 
-開設http
+設定好以下幾項設定檔案
 
 ```bash
 #預設文件備份，以及更換要執行的設定檔案
@@ -127,20 +127,20 @@ $ docker-compose up -d
 
 #### HTTPS
 
+(開設https API 需要domain. )
+
 如果需要開設https 麻煩修改 `nginx/nginx_nkust_api.conf`
 
 取代"**所有**"`example.org`更改為要開設的網域
 
-
-
-**第一次執行**請先修改`init-letsencrypt.sh` `line 8~9`
+****修改`init-letsencrypt.sh` `line 8~9`
 
 ```bash
 domains=(aaa.example.org aaa.example.org)
 email="aaaa@example.org" 
 ```
 
-**第一次執行**
+****
 
 ```bash
 $ sudo chmod +x init-letsencrypt.sh
@@ -149,9 +149,9 @@ $ sudo ./init-letsencrypt.sh
 
 (沒有任何錯誤及架設完成)
 
-後續執行**不需要**使用`init-letsencrypt.sh` 
+後續再次開啟**不需要**使用`init-letsencrypt.sh` 
 
-
+直接使用
 
 ```bash
 $ docker-compose up -d 
