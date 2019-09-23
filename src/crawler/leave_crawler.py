@@ -2,6 +2,7 @@ import requests
 from lxml import etree
 
 from utils import config, error_code
+import datetime
 
 
 def login(session, username, password):
@@ -133,3 +134,56 @@ def get_leave_list(session, year, semester):
             filter(lambda x: x["reason"], leave["sections"]))
         result.append(leave)
     return [result, timecode]
+
+
+def get_submit_info(session):
+    # more return detail in swagger.
+    main_url = 'http://leave.nkust.edu.tw/CK001MainM.aspx'
+    req = session.get(main_url)
+    root = etree.HTML(req.text)
+
+    form_data = {i.attrib["name"]: i.attrib["value"] for i in root.xpath(
+        "//input") if i.attrib["name"] != "ctl00$ButtonLogOut"}
+
+    req = session.post(url=main_url, data=form_data)
+    root = etree.HTML(req.text)
+
+    form_data = {i.attrib.get("name"): i.attrib.get("value", "") for i in root.xpath("//input") if i.attrib["name"] not in [
+        "ctl00$ButtonLogOut", 'ctl00$ContentPlaceHolder1$CK001$ButtonQuery', 'ctl00$ContentPlaceHolder1$CK001$ButtonClear', 'ctl00$ContentPlaceHolder1$CK001$ButtonPreview']}
+
+    now = datetime.datetime.now()
+    fake_date = "{tern_year}/{m}/{d}".format(
+        tern_year=str(now.year-1911), m=now.month, d=now.day)
+
+    form_data['ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1'] = fake_date
+    form_data['ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1'] = fake_date
+
+    req = session.post(url=main_url, data=form_data)
+    root = etree.HTML(req.text)
+
+    leave_value = root.xpath(
+        "//*[@id='ContentPlaceHolder1_CK001_RadioButtonListOption']//input")
+    leave_label = root.xpath(
+        "//*[@id='ContentPlaceHolder1_CK001_RadioButtonListOption']//label")
+    teacher = root.xpath(
+        "//select[@id='ContentPlaceHolder1_CK001_ddlTeach']/option[@selected='selected']")
+    time_code = root.xpath(
+        "//*[@id='ContentPlaceHolder1_CK001_GridViewMain']//tr[1]//th")
+
+    result = {}
+    if len(teacher) == 1:
+        result['tutors'] = {
+            'name': teacher[0].text,
+            'id': teacher[0].attrib.get("value", None)
+        }
+    else:
+        result['tutors'] = {
+            'name': None,
+            'id': None
+        }
+    result['type'] = [{'title': label.text, 'id': value.attrib.get(
+        'value', None)} for value, label in zip(leave_value, leave_label)]
+
+    result['timeCode'] = [i.text for i in time_code[3:]]
+
+    return result
