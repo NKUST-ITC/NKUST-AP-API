@@ -32,3 +32,22 @@ class leave_list:
             return True
         raise falcon.HTTPInternalServerError(
             description='something error ?')
+
+
+class leave_submit_info:
+
+    @falcon.before(leave_login_cache_required)
+    def on_get(self, req, resp):
+        # jwt payload
+        payload = req.context['user']['user']
+
+        submit_info = leave_cache.get_submit_info(username=payload['username'])
+
+        if isinstance(submit_info, str):
+            resp.body = submit_info
+            resp.media = falcon.MEDIA_JSON
+            resp.status = falcon.HTTP_200
+            return True
+        raise falcon.HTTPInternalServerError(
+            description='something error ?')
+
