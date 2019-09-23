@@ -85,3 +85,38 @@ def get_leave_list(username, year, semester):
         return json_dumps_data
 
     return error_code.CACHE_LEAVE_ERROR
+
+
+def get_submit_info(username):
+    """get submit info
+
+    Args:
+        username ([str]): NKUST webap username
+
+    Returns:
+        [str]: result type is json.
+
+        [int]:CACHE_LEAVE_ERROR
+    """
+    redis_name = "leave_list_{username}_submit_info".format(
+        username=username)
+
+    if red_string.exists(redis_name):
+        return red_string.get(redis_name)
+
+    session = requests.session()
+    session.cookies = pickle.loads(red_bin.get('leave_cookie_%s' % username))
+
+    data = leave_crawler.get_submit_info(
+        session=session)
+
+    if isinstance(data, dict):
+
+        json_dumps_data = json.dumps(data, ensure_ascii=False)
+        red_string.set(
+            name=redis_name,
+            value=json_dumps_data,
+            ex=config.CACHE_LEAVE_SUBMIT_EXPIRE_TIME)
+        return json_dumps_data
+
+    return error_code.CACHE_LEAVE_ERROR
