@@ -1527,10 +1527,11 @@ paths:
                     properties:
                         name:
                           type: string
-                          description: teacher's name
+                          description: teacher's name, or Null.
                         id:
                           type: string
-                          description: teacher id.
+                          description: teacher id, or Null.
+                    description: if you get null, use util/leave_tutor_maker.py to get json file.
                   type:
                     type: object
                     description: leaves type
