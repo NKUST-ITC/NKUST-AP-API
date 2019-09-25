@@ -222,7 +222,9 @@ def leaves_submut(session, leaves_data, proof_file=None, proof_file_name="test.j
     global_form_data['ctl00$ContentPlaceHolder1$CK001$RadioButtonListOption'] = leaves_data['leaveType']
     time_code = root.xpath(
         "//div[@id='ContentPlaceHolder1_CK001_UpdatePanel2']//tr")
-
+    if leaves_data.get('delayReason', False):
+        global_form_data['ctl00$ContentPlaceHolder1$CK001$TextBoxDelayReason'] = leaves_data.get(
+            'delayReason', '')
     need_click_button_data = []
     # get need click button information
     for leave_day in leaves_data['days']:
