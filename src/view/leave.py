@@ -101,7 +101,6 @@ class leave_submit:
             leave_proof=leave_proof_image_bytes)
         if isinstance(submit_status, bool):
             if submit_status is True:
-                resp.media = falcon.MEDIA_JSON
                 resp.status = falcon.HTTP_200
                 return True
         elif isinstance(submit_status, int):
