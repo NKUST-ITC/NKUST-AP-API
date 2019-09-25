@@ -1531,7 +1531,7 @@ paths:
                         id:
                           type: string
                           description: teacher id, or Null.
-                    description: if you get null, use util/leave_tutor_maker.py to get json file.
+                    description: if you get null, use src/leave_tutor_maker.py to get json file.
                   type:
                     type: object
                     description: leaves type
