@@ -98,7 +98,7 @@ $ cp env.example .env
 如果有要設定最新消息的使用者可以在`.env`中新增
 
 ```
-REDIS_URL=redis://redis:6379/0
+REDIS_URL=redis://redis:6379
 NEWS_ADMIN="1106111111;1105111111"
 ```
 
