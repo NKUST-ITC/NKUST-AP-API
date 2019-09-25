@@ -252,8 +252,10 @@ def leaves_submut(session, leaves_data, proof_file=None, proof_file_name="test.j
     root = etree.HTML(req.text)
 
     # delete defalut headers
-    del session.headers['Content-Type']
-
+    try:
+        del session.headers['Content-Type']
+    except:
+        pass
     form_data = {i.attrib.get("name"): i.attrib.get("value", "") for i in root.xpath(
         "//input") if i.attrib["name"][0:2] == "__"}
     form_data['ctl00$ContentPlaceHolder1$CK001$ButtonSend'] = '存檔'
