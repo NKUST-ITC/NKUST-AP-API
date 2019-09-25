@@ -172,7 +172,7 @@ def get_submit_info(session):
 
     result = {}
     if len(teacher) == 1:
-        result['tutors'] = {
+        result['tutor'] = {
             'name': teacher[0].text,
             'id': teacher[0].attrib.get("value", None)
         }
@@ -184,7 +184,7 @@ def get_submit_info(session):
     result['type'] = [{'title': label.text, 'id': value.attrib.get(
         'value', None)} for value, label in zip(leave_value, leave_label)]
 
-    result['timeCode'] = [i.text for i in time_code[3:]]
+    result['timeCodes'] = [i.text for i in time_code[3:]]
 
     return result
 
