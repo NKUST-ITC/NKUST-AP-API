@@ -1522,7 +1522,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  tutors:
+                  tutor:
                     type: object
                     properties:
                         name:
@@ -1547,7 +1547,7 @@ paths:
                     description: timecode use fill user need leave submit sections
                     items:
                       type: string
-              example: {"tutors":{"name":"侯易佑","id":"10883"},"type":[{"title":"事假","id":"21"},{"title":"病假","id":"22"},{"title":"公假","id":"23"},{"title":"喪假","id":"24"},{"title":"陪產假","id":"42"}],"timeCode":["M","1","2","3","4","A","5","6","7","8","9","10","11","12","13"]}
+              example: {"tutor":{"name":"侯易佑","id":"10883"},"type":[{"title":"事假","id":"21"},{"title":"病假","id":"22"},{"title":"公假","id":"23"},{"title":"喪假","id":"24"},{"title":"陪產假","id":"42"}],"timeCodes":["M","1","2","3","4","A","5","6","7","8","9","10","11","12","13"]}
         400: 
           description: Bad Request
         401:
