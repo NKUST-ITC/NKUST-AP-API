@@ -177,7 +177,7 @@ def get_submit_info(session):
             'id': teacher[0].attrib.get("value", None)
         }
     else:
-        result['tutors'] = {
+        result['tutor'] = {
             'name': None,
             'id': None
         }
