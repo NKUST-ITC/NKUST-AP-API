@@ -1,12 +1,15 @@
 import json
 import datetime
 import falcon
+import sys
 
 from auth import jwt_auth
-from utils.util import leave_login_cache_required
-from utils import config
+from utils.util import leave_login_cache_required, max_body
+from utils import config, error_code
 from cache import leave_cache
-from utils import error_code
+# if this library is no longer maintained, change falcon(future), or cgi.
+from streaming_form_data import StreamingFormDataParser
+from streaming_form_data.targets import ValueTarget
 
 
 class leave_list:
@@ -51,3 +54,66 @@ class leave_submit_info:
         raise falcon.HTTPInternalServerError(
             description='something error ?')
 
+
+class leave_submit:
+
+    @falcon.before(leave_login_cache_required)
+    @falcon.before(max_body(1024*1024*4))
+    def on_post(self, req, resp):
+        payload = req.context['user']['user']
+        if req.get_header('Content-Type') != None:
+            if req.get_header('Content-Type')[0:19] != 'multipart/form-data':
+                raise falcon.HTTPBadRequest(code=400,
+                                            description='wrong Content-Type, only support multipart/form-data ')
+        else:
+            raise falcon.HTTPBadRequest(
+                code=406,
+                description='not found Content-Type. ')
+
+        parser = StreamingFormDataParser(headers=req.headers)
+        leave_data_bytes = ValueTarget()
+        parser.register('leavesData', leave_data_bytes)
+        # save in memory don't do anything to it !
+        leave_proof_image_bytes = ValueTarget()
+        parser.register('leavesProof', leave_proof_image_bytes)
+        # load request
+        parser.data_received(req.bounded_stream.read())
+        # check data
+        if leave_proof_image_bytes != None:
+            if leave_proof_image_bytes.multipart_filename[-3:] not in ['png', 'jpg', 'jpeg', 'PNG', "JPG", "JPEG"]:
+                raise falcon.HTTPBadRequest(
+                    code=401,
+                    description='file type not support')
+            if sys.getsizeof(leave_proof_image_bytes.value) > config.LEAVE_PROOF_IMAGE_SIZE_LIMIT:
+                raise falcon.HTTPBadRequest(
+                    code=402,
+                    description='file size over limit.')
+        try:
+            leave_data = json.loads(
+                leave_data_bytes.value.decode('utf-8'))
+        except json.decoder.JSONDecodeError:
+            raise falcon.HTTPBadRequest(
+                code=403,
+                description='leavesData JSONDecodeError ')
+        submit_status = leave_cache.submit_leaves(
+            username=payload['username'],
+            leave_data=leave_data,
+            leave_proof=leave_proof_image_bytes)
+        if isinstance(submit_status, bool):
+            if submit_status is True:
+                resp.media = falcon.MEDIA_JSON
+                resp.status = falcon.HTTP_200
+                return True
+        elif isinstance(submit_status, int):
+            if submit_status == error_code.LEAVE_SUBMIT_WRONG_DATE:
+                raise falcon.HTTPForbidden(
+                    code=410, description="leave date not accept.")
+            elif submit_status == error_code.LEAVE_SUBMIT_NEED_PROOF:
+                raise falcon.HTTPForbidden(
+                    code=411, description='need proof image')
+            elif submit_status == error_code.LEAVE_SUBMIT_DATE_CONFLICT:
+                raise falcon.HTTPForbidden(
+                    code=412, description='request leave date, is already submitted.')
+            elif submit_status == error_code.LEAVE_SUBMIT_SOMETHING_ERROR:
+                pass
+        raise falcon.HTTPInternalServerError()
