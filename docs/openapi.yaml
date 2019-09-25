@@ -1768,12 +1768,15 @@ components:
           type: string
         reasonText:
           type: string
-          
+        delayReason:
+          type: string
+          description: "Optional"
       example:   
         days: [{"day":"2019/03/03","class":["A","3","5"]},{"day":"2019/03/05","class":["2","3"]}]
         leaveType: "21"
         teacherId: "10041"
         reasonText: "我不當人類拉 JOJO!!!!!"
+        delayReason: "遲交的啦"
         
     
      
