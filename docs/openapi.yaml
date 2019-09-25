@@ -213,7 +213,7 @@ paths:
                 imgUrl: "https://i.imgur.com/FFm9wGR.jpg"
                 url: "https://google.com"
                 weight: 10
-                expireTime: "	2019-09-11T17:33:20Z"
+                expireTime: "  2019-09-11T17:33:20Z"
                 
                 
       responses:
@@ -276,7 +276,7 @@ paths:
                 imgUrl: "https://i.imgur.com/FFm9wGR.jpg"
                 url: "https://google.com"
                 weight: 10
-                expireTime: "	2019-09-11T17:33:20Z"
+                expireTime: "  2019-09-11T17:33:20Z"
                 
                 
       responses:
@@ -1408,9 +1408,23 @@ paths:
       summary: post leave form 
       requestBody:
         content:
-          application/json:    
-            schema:            
-              $ref: '#/components/schemas/leaveSubmit'
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  leavesData:
+                    type: object
+                    properties:
+                      schema:            
+                        $ref: '#/components/schemas/leaveSubmit' 
+                    description: "(Required), Leave data, json"
+                  leavesProof:
+                    type: string
+                    format: binary
+                    description: "(Optional), Proof image. "
+              example: 
+                leavesProof: "file"
+              
       description: "If query parameters are empty then return the latest absentees and leaves."
       security:
         - JSON-Web-Token: []
@@ -1419,16 +1433,79 @@ paths:
           description: done
         400: 
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: fail status code.|
+                                 401,proof file type not support  (filename extension only support jpg jpeg png)|
+                                 402,proof file size over limit. (3MB)|
+                                 403,leavesData JSONDecodeError|
+                                 406,not found Content-Type. 
+                                 400,wrong Content-Type, only support multipart/form-data '
+                                 
+                  description:
+                    type: string
+                    description: error message.
+              examples:
+                file type not support:
+                  value:
+                    code: 401
+                    description: "file type not support"
+                proof image over limit:
+                  value:
+                    code: 402
+                    description: "ile size over limit."
+                json decode error:
+                  value:
+                    code: 403
+                    description: "leavesData JSONDecodeError "
+                Content-Type error 1:
+                  value:
+                    code: 406
+                    description: "not found Content-Type."
+                Content-Type error 2:
+                  value:
+                    code: 400
+                    description: "wrong Content-Type, only support multipart/form-data"
         401:
           description: Token expired or Unauthorized Access
-        404:
-          description: Page not found
+        403:
+          description: HTTPForbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: fail status code.|
+                                 410,leave date not accept. (maybe not in semester)
+                                 411,this leave submit, need proof image|
+                                 412,request leave date is already submitted.|
+                  description:
+                    type: string
+                    description: error message.
+              examples:
+                leave date not accept:
+                  value:
+                    code: 410
+                    description: "leave date not accept."
+                need proof:
+                  value:
+                    code: 411
+                    description: "need proof image."
+                leave date already submitted:
+                  value:
+                    code: 412
+                    description: "request leave date, is already submitted."
         500:
           description: Internal Server Error
         503:
           description: Upstream server is timeout
-        504:
-          description: Upstream server is not alive
   /leaves/submit/info:
     get:
       tags:
@@ -1445,12 +1522,16 @@ paths:
               schema:
                 type: object
                 properties:
-                  tutors:
+                  tutor:
                     type: object
                     properties:
                         name:
                           type: string
-                          description: teacher's name
+                          description: teacher's name, or Null.
+                        id:
+                          type: string
+                          description: teacher id, or Null.
+                    description: if you get null, use src/leave_tutor_maker.py to get json file.
                   type:
                     type: object
                     description: leaves type
@@ -1466,7 +1547,7 @@ paths:
                     description: timecode use fill user need leave submit sections
                     items:
                       type: string
-              example: {"tutors":{"name":"柯博昌"},"type":[{"id":"21","title":"事假"},{"id":"22","title":"病假"},{"id":"23","title":"公假"},{"id":"24","title":"喪假"},{"id":"42","title":"產假"}],"teacherList":[{"teacherName":"柯博昌","teacherId":"10023"},{"teacherName":"柯博昌","teacherId":"100220"}],"timeCodes":["A","1","2","3","4","B","5","6","7","8","C","11","12","13","14"]}
+              example: {"tutor":{"name":"侯易佑","id":"10883"},"type":[{"title":"事假","id":"21"},{"title":"病假","id":"22"},{"title":"公假","id":"23"},{"title":"喪假","id":"24"},{"title":"陪產假","id":"42"}],"timeCodes":["M","1","2","3","4","A","5","6","7","8","9","10","11","12","13"]}
         400: 
           description: Bad Request
         401:
@@ -1687,12 +1768,15 @@ components:
           type: string
         reasonText:
           type: string
-          
+        delayReason:
+          type: string
+          description: "Optional"
       example:   
         days: [{"day":"2019/03/03","class":["A","3","5"]},{"day":"2019/03/05","class":["2","3"]}]
         leaveType: "21"
         teacherId: "10041"
         reasonText: "我不當人類拉 JOJO!!!!!"
+        delayReason: "遲交的啦"
         
     
      
