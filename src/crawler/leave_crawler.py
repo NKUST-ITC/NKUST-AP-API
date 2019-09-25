@@ -167,14 +167,15 @@ def get_submit_info(session):
         "//*[@id='ContentPlaceHolder1_CK001_RadioButtonListOption']//label")
     teacher = root.xpath(
         "//select[@id='ContentPlaceHolder1_CK001_ddlTeach']/option[@selected='selected']")
+
     time_code = root.xpath(
         "//*[@id='ContentPlaceHolder1_CK001_GridViewMain']//tr[1]//th")
 
     result = {}
     if len(teacher) == 1:
         result['tutor'] = {
-            'name': teacher[0].text,
-            'id': teacher[0].attrib.get("value", None)
+            'name': teacher[0].text if teacher[0].text != "請選擇" else None,
+            'id': teacher[0].attrib.get("value", None) if teacher[0].attrib.get("value", None) != "" else None
         }
     else:
         result['tutor'] = {
