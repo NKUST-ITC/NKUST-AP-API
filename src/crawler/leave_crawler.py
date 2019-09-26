@@ -167,7 +167,6 @@ def get_submit_info(session):
         "//*[@id='ContentPlaceHolder1_CK001_RadioButtonListOption']//label")
     teacher = root.xpath(
         "//select[@id='ContentPlaceHolder1_CK001_ddlTeach']/option[@selected='selected']")
-
     time_code = root.xpath(
         "//*[@id='ContentPlaceHolder1_CK001_GridViewMain']//tr[1]//th")
 
@@ -182,6 +181,8 @@ def get_submit_info(session):
             'name': None,
             'id': None
         }
+    if result['tutor']['name'] == None and result['tutor']['id'] == None:
+        result['tutor'] = None
     result['type'] = [{'title': label.text, 'id': value.attrib.get(
         'value', None)} for value, label in zip(leave_value, leave_label)]
 
