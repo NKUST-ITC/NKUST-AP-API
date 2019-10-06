@@ -126,7 +126,7 @@ def get_submit_info(username):
     return error_code.CACHE_LEAVE_ERROR
 
 
-def submit_leaves(username, leave_data, leave_proof):
+def submit_leave(username, leave_data, leave_proof):
     """leave submit!
 
     Args:
@@ -169,9 +169,9 @@ def submit_leaves(username, leave_data, leave_proof):
         if leave_proof.multipart_filename[-3:] not in ['png', 'PNG']:
             image_type = 'png'
 
-    data = leave_crawler.leaves_submut(
+    data = leave_crawler.leave_submit(
         session=session,
-        leaves_data=leave_data,
+        leave_data=leave_data,
         proof_file=leave_proof.value,
         proof_file_name=leave_proof.multipart_filename,
         proof_type=image_type)

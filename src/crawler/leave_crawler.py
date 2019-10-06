@@ -193,7 +193,7 @@ def get_submit_info(session):
     return result
 
 
-def leaves_submut(session, leaves_data, proof_file=None, proof_file_name="test.jpg", proof_type='jpg'):
+def leave_submit(session, leave_data, proof_file=None, proof_file_name="test.jpg", proof_type='jpg'):
 
     main_url = 'http://leave.nkust.edu.tw/CK001MainM.aspx'
     req = session.get(main_url)
@@ -208,8 +208,8 @@ def leaves_submut(session, leaves_data, proof_file=None, proof_file_name="test.j
     form_data = {i.attrib.get("name"): i.attrib.get("value", "") for i in root.xpath("//input") if i.attrib["name"] not in [
         "ctl00$ButtonLogOut", 'ctl00$ContentPlaceHolder1$CK001$ButtonQuery', 'ctl00$ContentPlaceHolder1$CK001$ButtonClear', 'ctl00$ContentPlaceHolder1$CK001$ButtonPreview']}
 
-    start_date = leaves_data['days'][0]['day']
-    end_date = leaves_data['days'][-1]['day']
+    start_date = leave_data['days'][0]['day']
+    end_date = leave_data['days'][-1]['day']
     form_data['ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1'] = start_date
     form_data['ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1'] = end_date
     req = session.post(url=main_url, data=form_data)
@@ -221,17 +221,17 @@ def leaves_submut(session, leaves_data, proof_file=None, proof_file_name="test.j
         pass
 
     global_form_data = {}
-    global_form_data['ctl00$ContentPlaceHolder1$CK001$TextBoxReason'] = leaves_data['reasonText']
-    global_form_data['ctl00$ContentPlaceHolder1$CK001$ddlTeach'] = leaves_data['teacherId']
-    global_form_data['ctl00$ContentPlaceHolder1$CK001$RadioButtonListOption'] = leaves_data['leaveType']
+    global_form_data['ctl00$ContentPlaceHolder1$CK001$TextBoxReason'] = leave_data['reasonText']
+    global_form_data['ctl00$ContentPlaceHolder1$CK001$ddlTeach'] = leave_data['teacherId']
+    global_form_data['ctl00$ContentPlaceHolder1$CK001$RadioButtonListOption'] = leave_data['leaveType']
     time_code = root.xpath(
         "//div[@id='ContentPlaceHolder1_CK001_UpdatePanel2']//tr")
-    if leaves_data.get('delayReasonText', False):
-        global_form_data['ctl00$ContentPlaceHolder1$CK001$TextBoxDelayReason'] = leaves_data.get(
+    if leave_data.get('delayReasonText', False):
+        global_form_data['ctl00$ContentPlaceHolder1$CK001$TextBoxDelayReason'] = leave_data.get(
             'delayReasonText', '')
     need_click_button_data = []
     # get need click button information
-    for leave_day in leaves_data['days']:
+    for leave_day in leave_data['days']:
         for tr in time_code:
             _temp = tr.xpath('.//td')
             for index, value in enumerate(_temp[3:]):

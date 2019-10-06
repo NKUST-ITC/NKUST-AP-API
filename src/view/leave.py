@@ -99,7 +99,7 @@ class leave_submit:
             raise falcon.HTTPBadRequest(
                 code=403,
                 description='leavesData JSONDecodeError ')
-        submit_status = leave_cache.submit_leaves(
+        submit_status = leave_cache.submit_leave(
             username=payload['username'],
             leave_data=leave_data,
             leave_proof=leave_proof_image_bytes)
