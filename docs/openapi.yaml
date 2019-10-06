@@ -1561,7 +1561,8 @@ paths:
                 properties:
                     code:
                       type: integer
-                      description: "error code "
+                      description: error code |
+                                   400, graduate can't use this feature 
                     title:
                       type: string
                       description: "http status description"
