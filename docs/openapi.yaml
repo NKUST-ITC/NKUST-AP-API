@@ -1554,6 +1554,26 @@ paths:
           description: Token expired or Unauthorized Access
         403:
           description: User can't user this feature
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    code:
+                      type: integer
+                      description: "error code "
+                    title:
+                      type: string
+                      description: "http status description"
+                    description:
+                      type: string
+                      description: "error description"
+              examples:
+                graduate can't use this feature:
+                  value:  
+                    code: 400
+                    title: "403 Forbidden"
+                    description: "400, graduate can't use this feature "
         404:
           description: Page not found
         500:
