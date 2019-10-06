@@ -1418,12 +1418,12 @@ paths:
                       schema:            
                         $ref: '#/components/schemas/leaveSubmit' 
                     description: "(Required), Leave data, json"
-                  leavesProof:
+                  proofImage:
                     type: string
                     format: binary
                     description: "(Optional), Proof image. "
               example: 
-                leavesProof: "file"
+                proofImage: "file"
               
       description: "If query parameters are empty then return the latest absentees and leaves."
       security:
