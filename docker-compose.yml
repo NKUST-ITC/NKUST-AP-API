@@ -1,8 +1,8 @@
 version: '3.6'
 services:
   web:
-    container_name: doge
-    build: 
+    container_name: NKUST_AP_API
+    build:
       context: .
       dockerfile: Dockerfile
     volumes:
