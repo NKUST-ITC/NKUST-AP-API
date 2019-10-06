@@ -140,6 +140,8 @@ def get_submit_info(session):
     # more return detail in swagger.
     main_url = 'http://leave.nkust.edu.tw/CK001MainM.aspx'
     req = session.get(main_url)
+    if req.status_code == 500:
+        return error_code.LEAVE_SUBMIT_INFO_GRADUATE_ERROR
     root = etree.HTML(req.text)
 
     form_data = {i.attrib["name"]: i.attrib["value"] for i in root.xpath(

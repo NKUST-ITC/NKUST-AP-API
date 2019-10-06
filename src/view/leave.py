@@ -51,6 +51,10 @@ class leave_submit_info:
             resp.media = falcon.MEDIA_JSON
             resp.status = falcon.HTTP_200
             return True
+        if isinstance(submit_info, int):
+            if submit_info == error_code.LEAVE_SUBMIT_INFO_GRADUATE_ERROR:
+                raise falcon.HTTPForbidden(
+                    description="400, graduate can't use this feature ", code=400)
         raise falcon.HTTPInternalServerError(
             description='something error ?')
 

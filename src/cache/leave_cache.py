@@ -119,6 +119,9 @@ def get_submit_info(username):
             value=json_dumps_data,
             ex=config.CACHE_LEAVE_SUBMIT_EXPIRE_TIME)
         return json_dumps_data
+    elif isinstance(data, int):
+        if data == error_code.LEAVE_SUBMIT_INFO_GRADUATE_ERROR:
+            return error_code.LEAVE_SUBMIT_INFO_GRADUATE_ERROR
 
     return error_code.CACHE_LEAVE_ERROR
 
