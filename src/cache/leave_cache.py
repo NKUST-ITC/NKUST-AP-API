@@ -161,8 +161,8 @@ def submit_leave(username, leave_data, leave_proof):
     for day in leave_data['days']:
         _temp_day_format = time.strptime(day['day'], '%Y/%m/%d')
         day['day'] = "{term_year}/{month}/{day}".format(term_year=_temp_day_format.tm_year - 1911,
-                                                        month=_temp_day_format.tm_mon,
-                                                        day=_temp_day_format.tm_mday)
+                                                        month="%02d" % _temp_day_format.tm_mon,
+                                                        day="%02d" % _temp_day_format.tm_mday)
 
     image_type = 'jpeg'
     if leave_proof != None:
