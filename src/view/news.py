@@ -120,7 +120,7 @@ class NewsAdd:
         req_json = json.loads(req.bounded_stream.read(), encoding='utf-8')
         # check json key
         for key in req_json.keys():
-            if key not in ['title', 'description', 'imgUrl', 'url', 'weight', 'expireTime']:
+            if key not in ['title', 'description', 'imgUrl', 'url', 'weight', 'expireTime', 'tag']:
                 raise falcon.HTTPBadRequest()
         if not isinstance(req_json.get('weight', 0), int):
             raise falcon.HTTPBadRequest(description='weight wrong type.')
