@@ -94,7 +94,11 @@ class AnnouncementsAll:
     def on_get(self, req, resp):
         '/news/announcements/all'
 
-        news_data = news.get_all_news()
+        if req.get_param('tag') != None:
+            tag_list = req.get_param('tag').split(';')
+            news_data = news.get_all_by_tag(tag_list)
+        else:
+            news_data = news.get_all_news()
         if news_data == []:
             resp.status = falcon.HTTP_204
             return True
