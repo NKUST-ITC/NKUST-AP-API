@@ -141,11 +141,15 @@ def add_news(**kwargs):
     if not title:
         return False
 
-    news_name = "news_{news_id}"
-    id_count = len([i for i in red_news.scan_iter()])
+    news_name = "news_{news_id}_{tag}"
+    news_list = [i for i in red_news.scan_iter()]
     news_id = 0
-    for id_ in range(id_count+1):
-        if not red_news.exists(news_name.format(news_id=id_)):
+    news_list.sort(key=lambda x: int(x.split("_")[1]))
+
+    news_list.append("news_0_null")  # need null data to create new id
+    for id_, key_name in zip(range(len(news_list)+1), news_list):
+        id_from_key_name = key_name.split('_')[1]
+        if id_ != int(id_from_key_name):
             news_id = id_
             break
 
@@ -156,7 +160,8 @@ def add_news(**kwargs):
         "weight": int(kwargs.get('weight', 0)),
         "imgUrl": kwargs.get('imgUrl', None),
         "url": kwargs.get('url', None),
-        "description": kwargs.get('description', None)
+        "description": kwargs.get('description', None),
+        'tag': kwargs.get('tag', [])
     }
     expire_time_seconds = kwargs.get('expireTime', None)
     if kwargs.get('expireTime', False):
@@ -164,7 +169,8 @@ def add_news(**kwargs):
         expire_time_seconds = (utc-datetime.datetime.utcnow()).seconds
     data_dumps = json.dumps(news_data, ensure_ascii=False)
 
-    red_news.set(name=news_name.format(news_id=news_id),
+    red_news.set(name=news_name.format(news_id=news_id,
+                                       tag=json.dumps(kwargs.get('tag', []))),
                  value=data_dumps, ex=expire_time_seconds)
     return news_id
 
