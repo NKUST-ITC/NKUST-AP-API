@@ -253,3 +253,37 @@ def remove_news(news_id=None):
 
     red_news.delete(news_name)
     return True
+
+
+def get_all_by_tag(tag_list):
+    # key name to long ?
+    # In redis this not to worry.
+    # https://stackoverflow.com/questions/6320739/does-name-length-impact-performance-in-redis
+
+    news_list = [i for i in red_news.scan_iter()]
+    news_list.sort(key=lambda x: int(x.split("_")[1]))
+    temp_news_key_name = []
+    for news_key_name in news_list:
+        tags = json.loads(
+            news_key_name[news_key_name.index("_", 5)+1:], encoding='utf-8')
+        for news_tag in tags:
+            if news_tag in tag_list:
+                temp_news_key_name.append(news_key_name)
+                break
+
+    news_data = sorted([json.loads(red_news.get(i))
+                        for i in temp_news_key_name], key=lambda k: k['id'])
+
+    for index, value in enumerate(news_data):
+        try:
+            value['nextId'] = news_data[index+1]['id']
+        except:
+            value['nextId'] = None
+        try:
+            if index-1 != -1:
+                value['lastId'] = news_data[index-1]['id']
+            else:
+                value['lastId'] = None
+        except:
+            value['lastId'] = None
+    return news_data
