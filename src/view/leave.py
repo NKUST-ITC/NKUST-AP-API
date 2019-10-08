@@ -74,14 +74,25 @@ class leave_submit:
                 code=406,
                 description='not found Content-Type. ')
 
+        def convert_lowercase_mutlipart(req_bytes_data):
+            # cobert lower case MIME to defalut MIME type,Support cgi
+            data = {
+                'content-disposition': 'Content-Disposition',
+                'content-type': 'Content-Type'
+            }
+            for k, v in data.items():
+                req_bytes_data = req_bytes_data.replace(
+                    bytes(k, encoding='utf-8'), bytes(v, encoding='utf-8'))
+            return req_bytes_data
+
         parser = StreamingFormDataParser(headers=req.headers)
         leave_data_bytes = ValueTarget()
         parser.register('leavesData', leave_data_bytes)
         # save in memory don't do anything to it !
         leave_proof_image_bytes = ValueTarget()
-        parser.register('leavesProof', leave_proof_image_bytes)
+        parser.register('proofImage', leave_proof_image_bytes)
         # load request
-        parser.data_received(req.bounded_stream.read())
+        parser.data_received(convert_lowercase_mutlipart(req.stream.read()))
         # check data
         if leave_proof_image_bytes != None:
             if leave_proof_image_bytes.multipart_filename[-3:] not in ['png', 'jpg', 'jpeg', 'PNG', "JPG", "JPEG"]:
