@@ -79,7 +79,7 @@ class leave_submit:
         parser.register('leavesData', leave_data_bytes)
         # save in memory don't do anything to it !
         leave_proof_image_bytes = ValueTarget()
-        parser.register('leavesProof', leave_proof_image_bytes)
+        parser.register('proofImage', leave_proof_image_bytes)
         # load request
         parser.data_received(req.bounded_stream.read())
         # check data
