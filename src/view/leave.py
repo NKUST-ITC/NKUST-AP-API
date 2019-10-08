@@ -95,7 +95,7 @@ class leave_submit:
         parser.data_received(convert_lowercase_mutlipart(req.stream.read()))
         # check data
         if leave_proof_image_bytes != None:
-            if leave_proof_image_bytes.multipart_filename[-3:] not in ['png', 'jpg', 'jpeg', 'PNG', "JPG", "JPEG"]:
+            if (leave_proof_image_bytes.multipart_filename[-3:] not in ['png', 'jpg', 'PNG', "JPG"]) and (leave_proof_image_bytes.multipart_filename[-4:] not in ["jpeg", "JPEG"]):
                 raise falcon.HTTPBadRequest(
                     code=401,
                     description='file type not support')
