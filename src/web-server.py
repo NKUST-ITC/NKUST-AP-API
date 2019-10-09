@@ -2,6 +2,7 @@ import falcon
 from auth import auth_middleware
 from view import api
 from view import user
+from view import library
 from view import leave
 from view import bus
 from view import news
@@ -19,6 +20,7 @@ app.add_route('/user/reward-and-penalty', user.userReward())
 # app.add_route('/user/graduation-threshold', user.userGraduation())
 app.add_route('/user/room/list', user.userRoomList())
 app.add_route('/user/empty-room/info', user.userQueryEmptyRoom())
+app.add_route('/library/user/info', library.userInfo())
 app.add_route('/leave/all', leave.leave_list())
 app.add_route('/leave/submit/info', leave.leave_submit_info())
 app.add_route('/leave/submit', leave.leave_submit())
