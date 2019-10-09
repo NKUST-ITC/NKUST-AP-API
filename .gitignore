@@ -233,3 +233,4 @@ caddy/Caddyfile
 \.env
 venv/
 data/certbot/
+nginx_nkust_api.conf
