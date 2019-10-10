@@ -164,7 +164,6 @@ class AnnouncementsAll:
 class NewsAdd:
 
     @falcon.before(max_body(64 * 1024))
-    @falcon.before(webap_login_cache_required)
     @falcon.before(falcon_admin_required)
     def on_post(self, req, resp):
 
@@ -190,7 +189,6 @@ class NewsAdd:
 class NewsUpdate:
 
     @falcon.before(max_body(64 * 1024))
-    @falcon.before(webap_login_cache_required)
     @falcon.before(falcon_admin_required)
     def on_put(self, req, resp, news_id):
 
@@ -222,7 +220,6 @@ class NewsUpdate:
 
 class NewsRemove:
 
-    @falcon.before(webap_login_cache_required)
     @falcon.before(falcon_admin_required)
     def on_delete(self, req, resp, news_id):
 
