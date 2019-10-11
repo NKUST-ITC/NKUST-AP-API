@@ -227,6 +227,22 @@ paths:
                 weight:
                   type: integer
                   description: (Optional. default is 0)
+                tag:
+                  type: array
+                  description: (Optional) tag like [一年級,燕巢校區]
+                location:
+                  type: object
+                  description: (Optional) location detail
+                  properties:
+                    title:
+                      type: string
+                      description: location name 
+                    lat:
+                      type: integer
+                      description: latitude
+                    lng:
+                      type: integer
+                      description: longitude
                 expireTime:
                   type: string
                   description: iso time format. you can use any timezone to set it! (Optional) 
