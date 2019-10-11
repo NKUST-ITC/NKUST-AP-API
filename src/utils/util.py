@@ -193,6 +193,8 @@ def falcon_admin_required(req, resp, resource, params):
 
     if payload['username'] in config.NEWS_ADMIN:
         return True
+    elif payload['username'] == config.NEWS_ADMIN_ACCOUNT:
+        return True
     else:
         # 401
         raise falcon.HTTPUnauthorized(description='not a admin :( ')

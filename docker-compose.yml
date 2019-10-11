@@ -1,4 +1,4 @@
-version: '3.6'
+version: "3.6"
 services:
   web:
     container_name: NKUST_AP_API
@@ -6,10 +6,12 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-    - .:/usr/src/app
+      - .:/usr/src/app
     environment:
       - REDIS_URL=${REDIS_URL}
       - NEWS_ADMIN=${NEWS_ADMIN}
+      - NEWS_ADMIN_ACCOUNT=${NEWS_ADMIN_ACCOUNT}
+      - NEWS_ADMIN_PASSWORD=${NEWS_ADMIN_PASSWORD}
     command: ["gunicorn", "-c", "gunicorn_cfg.py", "web-server:app"]
     networks:
       - redis-net
@@ -39,7 +41,7 @@ services:
     depends_on:
       - web
       - certbot
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
 
   certbot:
     image: certbot/certbot

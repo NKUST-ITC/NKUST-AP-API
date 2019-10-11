@@ -1,12 +1,63 @@
+import datetime
 import json
 
 import falcon
+import redis
 
+from auth import jwt_auth
 from cache import school_announcements_cache as sac_cache
 from news import news
-from utils import error_code
+from utils import config, error_code, util
 from utils.util import (falcon_admin_required, max_body,
                         webap_login_cache_required)
+
+red_auth_token = redis.StrictRedis.from_url(
+    url=config.REDIS_URL, db=6, charset="utf-8", decode_responses=True)
+
+
+class newsAdminLogin:
+    auth = {
+        'exempt_methods': ['POST']
+    }
+    @falcon.before(max_body(64 * 1024))
+    def on_post(self, req, resp):
+
+        req_json = json.loads(req.bounded_stream.read(), encoding='utf-8')
+        # check json key
+        for key in req_json.keys():
+            if key not in ['username', 'password']:
+                # return status code 406  not acceptable
+                raise falcon.HTTPNotAcceptable(falcon.HTTP_NOT_ACCEPTABLE)
+
+        if req_json['username'] != config.NEWS_ADMIN_ACCOUNT and req_json['password'] != config.NEWS_ADMIN_PASSWORD:
+            raise falcon.HTTPUnauthorized()
+
+        token = util.randStr(32)
+        req_json['token'] = token
+        red_auth_token.set(
+            name="{username}_{token}".format(
+                username=req_json['username'],
+                token=token),
+            value='',
+            ex=config.ADMIN_JWT_EXPIRE_TIME)
+        JWT_token = jwt_auth.get_auth_token(user_payload=req_json)
+        resp.media = {
+            'token': JWT_token,
+            'expireTime': (datetime.datetime.utcnow() + datetime.timedelta(seconds=config.ADMIN_JWT_EXPIRE_TIME)).isoformat(timespec='seconds')+"Z"
+        }
+        resp.media['isAdmin'] = True
+
+        resp.status = falcon.HTTP_200
+        return True
+
+    def on_delete(self, req, resp):
+
+        payload = req.context['user']['user']
+        redis_token_name = "{username}_{token}".format(
+            username=payload['username'],
+            token=payload['token'])
+        red_auth_token.delete(redis_token_name)
+        resp.status = falcon.HTTP_205
 
 
 class acadNews:
@@ -113,7 +164,6 @@ class AnnouncementsAll:
 class NewsAdd:
 
     @falcon.before(max_body(64 * 1024))
-    @falcon.before(webap_login_cache_required)
     @falcon.before(falcon_admin_required)
     def on_post(self, req, resp):
 
@@ -139,7 +189,6 @@ class NewsAdd:
 class NewsUpdate:
 
     @falcon.before(max_body(64 * 1024))
-    @falcon.before(webap_login_cache_required)
     @falcon.before(falcon_admin_required)
     def on_put(self, req, resp, news_id):
 
@@ -171,7 +220,6 @@ class NewsUpdate:
 
 class NewsRemove:
 
-    @falcon.before(webap_login_cache_required)
     @falcon.before(falcon_admin_required)
     def on_delete(self, req, resp, news_id):
 

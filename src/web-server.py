@@ -10,6 +10,7 @@ from view import news
 app = falcon.API(middleware=[auth_middleware])
 
 app.add_route('/oauth/token', api.ApiLogin())
+app.add_route('/oauth/admin/token', news.newsAdminLogin())
 app.add_route('/oauth/token/all', api.DeleteAllToken())
 app.add_route('/user/info', user.userInfo())
 app.add_route('/user/scores', user.userScore())
