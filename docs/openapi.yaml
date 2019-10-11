@@ -74,7 +74,38 @@ paths:
           description: Bad Request
         401:
           description: Username or password is incorrect
-          
+  /oauth/admin/token:
+    post:
+      tags:
+      - "Authentication"
+      summary: get the admin token, only use in News.
+      requestBody:
+        content:
+          application/json:    
+            schema:            
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: login sucess
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Auth'
+        400:
+          description: Bad Request
+        401:
+          description: Username or password is incorrect
+    delete:
+      tags:
+      - "Authentication"
+      summary: delete admin token
+      responses:
+        205:
+          description: Logout sucess and client should reset content
+        400:
+          description: Bad Request
+        401:
+          description: Username or password is incorrect    
   /server/info:
     get:
       tags:
