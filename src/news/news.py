@@ -226,7 +226,13 @@ def update_news(news_id=None, **kwargs):
     if kwargs.get('expireTime', origin_news.get('expireTime', False)):
         utc = time_format(kwargs.get(
             'expireTime', origin_news.get('expireTime', False)))
-        expire_time_seconds = (utc-datetime.datetime.utcnow()).seconds
+        expire_time_seconds = int(
+            (utc-datetime.datetime.utcnow()).total_seconds())
+        if expire_time_seconds < 0:
+            expire_time_seconds = None
+        else:
+            news_data["expireTime"] = time_format(kwargs.get(
+                'expireTime', False)).isoformat(timespec="seconds")+"Z"
     data_dumps = json.dumps(news_data, ensure_ascii=False)
 
     red_news.set(name=news_name,
