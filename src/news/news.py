@@ -163,6 +163,14 @@ def add_news(**kwargs):
         "description": kwargs.get('description', None),
         'tag': kwargs.get('tag', [])
     }
+    if kwargs.get('location', False):
+        location = kwargs.get('location', {})
+        if isinstance(location.get('title', False), str) and isinstance(location.get('lat', False), int) and isinstance(location.get('lng', False), int):
+            news_data['location'] = {
+                'title': location.get('title', None),
+                'lng': location.get('lng', None),
+                'lat': location.get('lat', None)
+            }
     expire_time_seconds = kwargs.get('expireTime', None)
     if kwargs.get('expireTime', False):
         utc = time_format(kwargs.get('expireTime', False))
