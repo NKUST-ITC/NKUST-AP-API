@@ -156,7 +156,8 @@ def add_news(**kwargs):
         "weight": int(kwargs.get('weight', 0)),
         "imgUrl": kwargs.get('imgUrl', None),
         "url": kwargs.get('url', None),
-        "description": kwargs.get('description', None)
+        "description": kwargs.get('description', None),
+        "expireTime": None
     }
     expire_time_seconds = kwargs.get('expireTime', None)
     if kwargs.get('expireTime', False):
@@ -165,6 +166,9 @@ def add_news(**kwargs):
             (utc-datetime.datetime.utcnow()).total_seconds())
         if expire_time_seconds < 0:
             expire_time_seconds = None
+        else:
+            news_data["expireTime"] = time_format(kwargs.get(
+                'expireTime', False)).isoformat(timespec="seconds")+"Z"
     data_dumps = json.dumps(news_data, ensure_ascii=False)
 
     red_news.set(name=news_name.format(news_id=news_id),
