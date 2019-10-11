@@ -135,7 +135,15 @@ paths:
     get:
       tags:
       - News
-      summary: get all announcements 
+      summary: get all announcements
+      parameters: 
+      - in: query
+        name: "tag"
+        description:  '一年級;燕巢校區;建工校區;' 
+        required: false
+        schema:
+            type: string
+            format: string
       responses:
         200:
           description: return all news
@@ -172,8 +180,23 @@ paths:
                         description:
                           type: string
                           description: news description
+                        tag:
+                          type: array
+                          description: tag data
+                        location:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              description: location name 
+                            lat:
+                              type: integer
+                              description: latitude
+                            lng:
+                              type: integer
+                              description: longitude
               example: 
-                {"data":[{"title": "高科校務通IOS版 回歸", "id": 1,"nextId":2,"lastId":2, "imgUrl": "https://i.imgur.com/faSwvRv.jpg", "url": "https://nkustap.page.link/bCK1", "description": "重新推出 IOS 版本 高科校務通 此版本還在測試中 歡迎同學私訊粉專意見回饋\t","publishedTime": "2019-03-16T20:16:04+08:00"}, {"title": "宿舍直達高鐵站專車", "id": 2,"nextId":-1,"lastId":2, "imgUrl": "https://i.imgur.com/wwxD4Xa.png", "url": "", "description": "從燕巢宿舍直接發車，不用再走到公車站排隊 人數達25人即發車，一人只要30元喔","publishedTime": "2019-03-16T20:16:04+08:00"}]}
+                {"data":[{"title":"高科校務通IOS版 回歸","id":1,"nextId":2,"lastId":2,"imgUrl":"https://i.imgur.com/faSwvRv.jpg","url":"https://nkustap.page.link/bCK1","description":"重新推出 IOS 版本 高科校務通 此版本還在測試中 歡迎同學私訊粉專意見回饋\t","publishedTime":"2019-03-16T20:16:04+08:00"},{"title":"宿舍直達高鐵站專車","id":2,"nextId":-1,"lastId":2,"imgUrl":"https://i.imgur.com/wwxD4Xa.png","url":"","description":"從燕巢宿舍直接發車，不用再走到公車站排隊 人數達25人即發車，一人只要30元喔","publishedTime":"2019-03-16T20:16:04+08:00","tag":["一年級"],"location":{"title":"育賢樓","lng":123.0123,"lat":134.4345}}]}
         404:
           description: Page not found
         500:
