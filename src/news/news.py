@@ -161,7 +161,10 @@ def add_news(**kwargs):
     expire_time_seconds = kwargs.get('expireTime', None)
     if kwargs.get('expireTime', False):
         utc = time_format(kwargs.get('expireTime', False))
-        expire_time_seconds = (utc-datetime.datetime.utcnow()).seconds
+        expire_time_seconds = int(
+            (utc-datetime.datetime.utcnow()).total_seconds())
+        if expire_time_seconds < 0:
+            expire_time_seconds = None
     data_dumps = json.dumps(news_data, ensure_ascii=False)
 
     red_news.set(name=news_name.format(news_id=news_id),
