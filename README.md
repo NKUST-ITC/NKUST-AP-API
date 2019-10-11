@@ -8,7 +8,7 @@
 * [Quick start](#quick-start)
    * [Using Python virtual enviroment & Gunicorn](#using-python-virtual-enviroment-&-gunicorn)
    * [Using Docker-compose](#using-docker-compose)
-      
+     
 
 Requirement
 ---
@@ -39,6 +39,13 @@ $ export REDIS_URL=redis://127.0.0.1:6666
 
 ```bash
 $ export NEWS_ADMIN="1106111111;1105293392"
+```
+
+或是設定一個帳號密碼，來登入管理員。
+
+```bash
+$ export NEWS_ADMIN_ACCOUNT="admin"
+$ export NEWS_ADMIN_PASSWORD="1234567"
 ```
 
 創建Python virtual enviroment
