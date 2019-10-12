@@ -219,7 +219,8 @@ def update_news(news_id=None, **kwargs):
         "weight": int(kwargs.get('weight', int(origin_news.get('weight', 0)))),
         "imgUrl": kwargs.get('img_url', origin_news.get('imgUrl', None)),
         "url": kwargs.get('url', origin_news.get('url', None)),
-        "description": kwargs.get('description', origin_news.get('description', None))
+        "description": kwargs.get('description', origin_news.get('description', None)),
+        "expireTime": kwargs.get('expireTime', origin_news.get('expireTime', None))
     }
     expire_time_seconds = kwargs.get(
         'expireTime', origin_news.get('expireTime', None))
