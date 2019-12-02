@@ -1,13 +1,15 @@
-certifi==2019.3.9
+certifi==2019.6.16
 chardet==3.0.4
+falcon==2.0.0
+falcon-auth==1.1.0
+gunicorn>=19.9.0
 idna==2.8
-japronto==0.1.2
-##pip3 install git+git://github.com/squeaky-pl/japronto.git@master
-lxml==4.3.2
-PyExecJS==1.5.1
+lxml==4.3.4
 PyJWT==1.7.1
 redis==3.2.1
-requests==2.21.0
+requests==2.22.0
+urllib3==1.25.3
+PyExecJS==1.5.1
 six==1.12.0
-urllib3==1.24.1
-uvloop==0.12.1
+pytz==2019.2
+streaming-form-data==1.4.0
