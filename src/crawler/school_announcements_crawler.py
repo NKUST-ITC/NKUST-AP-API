@@ -32,8 +32,8 @@ def acad(page=0):
         req = req.json()['content']
 
         root = etree.HTML(req)
-        date = root.xpath('//*[@class="mdate before"]')
-        href = root.xpath('//*[@class="d-txt"]//a')
+        date = root.xpath('//*[@class="d-txt"]')
+        href = root.xpath('//*[@class="mtitle"]//a')
 
         base_id = page*15
 
@@ -42,7 +42,7 @@ def acad(page=0):
             'info':{
                 'id': base_id+index,
                 'title': href_data.attrib['title'],
-                'date':date_time.text
+                'date':date_time.text.replace('\n', '').replace('\t', '').replace(' ', '')
             }
         } for index, (date_time, href_data) in enumerate(zip(date, href))]
         return notification
