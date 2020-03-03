@@ -2,6 +2,14 @@ import os
 
 
 try:
+    # leave/bus/ap/library
+    AUTH_SERVER = os.environ['AUTH_SERVER']
+    if AUTH_SERVER not in ['leave','bus','ap','library']:
+        AUTH_SERVER = 'ap'
+except KeyError:
+    AUTH_SERVER = 'ap'
+
+try:
     REDIS_URL = os.environ['REDIS_URL']
 except KeyError:
     REDIS_URL = 'redis://127.0.0.1:6379'

@@ -5,7 +5,7 @@ import falcon
 import redis
 
 from auth import jwt_auth
-from cache import ap_cache, api_cache
+from cache import ap_cache, api_cache, leave_cache
 from utils import config, error_code
 from utils.util import max_body, randStr
 
@@ -33,11 +33,15 @@ class ApiLogin:
                 # return status code 406  not acceptable for value too long
                 raise falcon.HTTPPayloadTooLarge("value too long.")
 
-        # login to webap for check user acceptable
-        login_status = ap_cache.login(username=req_json['username'],
-                                      password=req_json['password'])
+        if config.AUTH_SERVER == 'ap':
+            # login to webap for check user acceptable
+            login_status = ap_cache.login(username=req_json['username'],
+                                          password=req_json['password'])
+        elif config.AUTH_SERVER == 'leave':
+            login_status = leave_cache.login(username=req_json['username'],
+                                             password=req_json['password'])
 
-        if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
+        if login_status in [error_code.CACHE_LEAVE_LOGIN_SUCCESS, error_code.CACHE_WENAP_LOGIN_SUCCESS]:
             # Add random token in to payload and save in redis.
             token = randStr(32)
             req_json['token'] = token
@@ -57,10 +61,10 @@ class ApiLogin:
                 resp.media['isAdmin'] = True
             resp.status = falcon.HTTP_200
             return True
-        elif login_status == error_code.CACHE_WEBAP_LOGIN_FAIL:
+        elif login_status in [error_code.LEAVE_LOGIN_FAIL, error_code.CACHE_WEBAP_LOGIN_FAIL]:
             resp.status = falcon.HTTP_401
             return True
-        elif login_status == error_code.CACHE_WEBAP_SERVER_ERROR:
+        elif login_status in [error_code.CACHE_LEAVE_ERROR, error_code.CACHE_WEBAP_SERVER_ERROR]:
             resp.status = falcon.HTTP_503
             raise falcon.HTTPServiceUnavailable()
 
