@@ -94,7 +94,7 @@ class leave_submit:
         # load request
         parser.data_received(convert_lowercase_mutlipart(req.stream.read()))
         # check data
-        if leave_proof_image_bytes != None:
+        if leave_proof_image_bytes != None and leave_proof_image_bytes.multipart_filename != None:
             if (leave_proof_image_bytes.multipart_filename[-3:] not in ['png', 'jpg', 'PNG', "JPG"]) and (leave_proof_image_bytes.multipart_filename[-4:] not in ["jpeg", "JPEG"]):
                 raise falcon.HTTPBadRequest(
                     code=401,
