@@ -165,7 +165,7 @@ def submit_leave(username, leave_data, leave_proof):
                                                         day="%02d" % _temp_day_format.tm_mday)
 
     image_type = 'jpeg'
-    if leave_proof != None:
+    if leave_proof != None and leave_proof.multipart_filename != None:
         if leave_proof.multipart_filename[-3:] not in ['png', 'PNG']:
             image_type = 'png'
 
