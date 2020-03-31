@@ -1,6 +1,7 @@
-import time
+import datetime
 import json
 import pickle
+import time
 
 import redis
 import requests
@@ -146,7 +147,8 @@ def submit_leave(username, leave_data, leave_proof):
     session = requests.session()
     session.cookies = pickle.loads(red_bin.get('leave_cookie_%s' % username))
     # --format input data--
-    leave_data['days'] = sorted(leave_data['days'], key=lambda k: k['day'])
+    leave_data['days'] = sorted(
+        leave_data['days'], key=lambda k: datetime.datetime.strptime(k['day'], '%Y/%m/%d'))
     # convert class to index numbe
     class_map = {"A": 5, "M": 0}
     for day in leave_data['days']:
@@ -154,8 +156,9 @@ def submit_leave(username, leave_data, leave_proof):
         for class_data in day['class']:
             if class_map.get(class_data, False):
                 class_data = class_map.get(class_data, False)
-            else:
-                class_data = int(class_data)+1
+            class_data = int(class_data)
+            if class_data > class_map['A']:
+                class_data += 1
             _temp_list.append(class_data)
         day['class'] = _temp_list
     for day in leave_data['days']:
