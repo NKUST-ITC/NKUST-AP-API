@@ -255,6 +255,11 @@ def leave_submit(session, leave_data, proof_file=None, proof_file_name="test.jpg
     form_data = {i.attrib.get("name"): i.attrib.get("value", "") for i in root.xpath(
         "//input") if i.attrib["name"][0:2] == "__"}
     form_data.update(global_form_data)
+
+    if leave_data['leaveType'] in ['21', '44', '46']:
+        # For wuhan virus. checkbox.
+        form_data['ctl00$ContentPlaceHolder1$CK001$cbFlag'] = 'on'
+
     form_data['ctl00$ContentPlaceHolder1$CK001$ButtonCommit2'] = '下一步'
     req = session.post(url=main_url, data=form_data)
     root = etree.HTML(req.text)
