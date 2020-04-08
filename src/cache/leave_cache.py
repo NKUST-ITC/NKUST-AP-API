@@ -154,11 +154,13 @@ def submit_leave(username, leave_data, leave_proof):
     for day in leave_data['days']:
         _temp_list = []
         for class_data in day['class']:
-            if class_map.get(class_data, False):
-                class_data = class_map.get(class_data, False)
-            class_data = int(class_data)
-            if class_data > class_map['A']:
-                class_data += 1
+            if class_data not in class_map.keys():
+                if int(class_data) >= class_map['A']:
+                    _temp_list.append(int(class_data)+1)
+                else:
+                    _temp_list.append(int(class_data))
+            else:
+                _temp_list.append(int(class_map.get(class_data, False)))
             _temp_list.append(class_data)
         day['class'] = _temp_list
     for day in leave_data['days']:
