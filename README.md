@@ -17,7 +17,7 @@ Requirement
 - Redis server
 - NodeJS (if host by python venv)
 
-### [API Docs](https://github.com/NKUST-ITC/NKUST-AP-API/tree/gh-pages/docs)
+### [API Docs](https://nkust-itc.github.io/NKUST-AP-API/docs/api-page.html)
 
 
 

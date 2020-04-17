@@ -215,8 +215,10 @@ def leave_submit(session, leave_data, proof_file=None, proof_file_name="test.jpg
     req = session.post(url=main_url, data=form_data)
     root = etree.HTML(req.text)
     try:
-        if root.xpath("//script[@language='javascript']")[0].text.find('alert') >= 0:
-            return error_code.LEAVE_SUBMIT_WRONG_DATE  # 日期不對//或是不再學期中
+        alert = root.xpath("//script[@language='javascript']")[0].text
+        if alert.find('alert') >= 0:
+            if alert.find('不在學期間') >= 0:  # 延遲請假也會用alert
+                return error_code.LEAVE_SUBMIT_WRONG_DATE  # 日期不對//或是不再學期中
     except:
         pass
 
@@ -226,7 +228,7 @@ def leave_submit(session, leave_data, proof_file=None, proof_file_name="test.jpg
     global_form_data['ctl00$ContentPlaceHolder1$CK001$RadioButtonListOption'] = leave_data['leaveType']
     time_code = root.xpath(
         "//div[@id='ContentPlaceHolder1_CK001_UpdatePanel2']//tr")
-    if leave_data.get('delayReasonText', False):
+    if leave_data.get('delayReasonText', False) and req.text.find('延遲理由') > -1:
         global_form_data['ctl00$ContentPlaceHolder1$CK001$TextBoxDelayReason'] = leave_data.get(
             'delayReasonText', '')
     need_click_button_data = []
@@ -253,6 +255,11 @@ def leave_submit(session, leave_data, proof_file=None, proof_file_name="test.jpg
     form_data = {i.attrib.get("name"): i.attrib.get("value", "") for i in root.xpath(
         "//input") if i.attrib["name"][0:2] == "__"}
     form_data.update(global_form_data)
+
+    if leave_data['leaveType'] in ['21', '44', '46']:
+        # For wuhan virus. checkbox.
+        form_data['ctl00$ContentPlaceHolder1$CK001$cbFlag'] = 'on'
+
     form_data['ctl00$ContentPlaceHolder1$CK001$ButtonCommit2'] = '下一步'
     req = session.post(url=main_url, data=form_data)
     root = etree.HTML(req.text)
