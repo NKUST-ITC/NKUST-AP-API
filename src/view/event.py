@@ -16,8 +16,16 @@ class event_QR:
     # covidefense server can't login without seat_id.
     def on_post(self, req, resp):
         jwt_payload = req.context['user']['user']
-
-        req_json = json.loads(req.bounded_stream.read(), encoding='utf-8')
+        if req.get_header('Content-Type') != None:
+            if req.get_header('Content-Type').find('application/json') > -1:
+                req_json = json.loads(
+                    req.bounded_stream.read(), encoding='utf-8')
+            elif req.get_header('Content-Type').find('www-form') > -1:
+                req_body = req.stream.read()
+                req_json = {}
+                for k, v in parse_qs(req_body.decode('utf-8')).items():
+                    if len(v) > 0:
+                        req_json[k] = v[0]
         # basic check
         for key in req_json.keys():
             if key not in ['data', 'bus_id']:
