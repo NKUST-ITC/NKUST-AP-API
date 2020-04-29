@@ -139,7 +139,7 @@ def coviddefense_info_and_send(account: str, password: str,
                                seat_id: str, bus_id="", send_confirm=False):
 
     session = requests.session()
-    session.verify = False
+
     if not red_bin.exists('coviddefense_cookie_%s' % account):
         # login and save cookie in redis.
         login_status = coviddefense_login(session=session,
@@ -155,7 +155,6 @@ def coviddefense_info_and_send(account: str, password: str,
             login_status = coviddefense_login(session=session,
                                               account=account,
                                               password=password, seat_id=seat_id)
-
 
     if isinstance(login_status, coviddefenseError):
         return login_status
