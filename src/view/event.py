@@ -54,7 +54,6 @@ class event_QR:
                 bus_id=bus_id,
                 send_confirm=send
             )
-            print(req_status)
 
             error_json = {
                 'code': 500,
