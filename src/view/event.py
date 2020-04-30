@@ -77,6 +77,8 @@ class event_QR:
                     error_json['description'] = "座位錯誤"
                 elif req_status == error.wrong_account_or_password:
                     error_json['description'] = "帳號密碼錯誤 (異常)\n(麻煩回報粉絲團)"
+                elif req_status == error.something_error:
+                    error_json['description'] = "異常錯誤"
                 resp.body = json.dumps(error_json, ensure_ascii='utf-8')
                 resp.media = falcon.MEDIA_JSON
                 resp.status = falcon.HTTP_500
