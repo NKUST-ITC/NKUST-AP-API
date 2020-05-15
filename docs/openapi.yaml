@@ -635,9 +635,9 @@ paths:
                       classRank:
                           type: string
                           description: rank in class
-                      classPercentage:
-                          type: integer
-                          description: percentage in class
+                      departmentRank:
+                          type: string
+                          description: rank in department
               example: {"scores":[{"title":"專業倫理","units":"1.0","hours":"1.0","required":"【必修】","at":"【學期】","middleScore":"*","finalScore":"96.00","remark":""},{"title":"核心通識(三)-現今科技議題","units":"2.0","hours":"2.0","required":"【必修】","at":"【學期】","middleScore":"*","finalScore":"69.00","remark":""}],"detail":{"conduct":82,"average":39,"classRank":"57/57","classPercentage":100}}
         204: 
           description: No Content
