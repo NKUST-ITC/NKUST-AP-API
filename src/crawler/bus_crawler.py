@@ -1,8 +1,9 @@
 import datetime
 import json
-import pytz
+import re
 
 import execjs
+import pytz
 import requests
 
 from utils import config, error_code
@@ -85,7 +86,7 @@ def login(session, username, password):
 
     return error_code.BUS_ERROR
 
-  
+
 def query(session, year, month, day):
     """query bus timetable.
 
@@ -229,7 +230,7 @@ def book(session, kid, action=True):
 
     return resource
 
-  
+
 def get_violation_records(session):
     """get user violation records list.
 
@@ -270,5 +271,3 @@ def get_violation_records(session):
 
         data.append(temp)
     return data
-
- 
