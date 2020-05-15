@@ -222,6 +222,14 @@ def book(session, kid, action=True):
     try:
         resource = session.post(
             url=URL, data=data, timeout=BUS_TIMEOUT).json()
+        if action is True and resource.get("data"):
+            if resource.get("data").get("startTime"):
+                resource['busTime'] = re.search(
+                    r"Date\((\d{0,14})\)", resource['data']['startTime']).group(1)
+        if action is False and resource.get("data"):
+            if resource.get("data").get("runTime"):
+                resource['busTime'] = re.search(
+                    r"Date\((\d{0,14})\)", resource['data']['runTime']).group(1)
 
     except requests.exceptions.Timeout:
         return error_code.BUS_TIMEOUT_ERROR
