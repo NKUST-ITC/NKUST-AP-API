@@ -132,7 +132,8 @@ def scores(html):
 
     detail = {
         "conduct": float(total[0][5::]) if not None else 0.0,
-        "classRank": total[2][8::]
+        "classRank": total[2][8::],
+        "departmentRank": total[3][8::]
     }
     try:
         detail["average"] = float(total[1][4::]) if not None else 0.0
