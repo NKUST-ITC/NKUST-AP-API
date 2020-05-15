@@ -75,54 +75,50 @@ def bus_query(username, year, month, day):
 
     if not red_bin.exists('bus_cookie_%s' % username):
         return error_code.CACHE_BUS_COOKIE_ERROR
-
-    redis_name = "bus_timetable_{username}_{year}_{month}_{day}".format(
-        username=username,
+    redis_name = "bus_timetable_{year}_{month}_{day}".format(
         year=year,
         month=month,
         day=day)
 
-    if red_string.exists(redis_name):
-        return red_string.get(redis_name)
-
     session = requests.session()
     session.cookies = pickle.loads(red_bin.get('bus_cookie_%s' % username))
-    pool = ThreadPool(processes=1)
-    async_result = pool.apply_async(bus_reservations_record, (username,))
+    user_book_data = pool.apply_async(bus_reservations_record, (username,))
 
-    result = bus_crawler.query(
-        session=session, year=year, month=month, day=day)
+    if red_string.exists(redis_name):
+        main_timetable = json.loads(red_string.get(redis_name))
+    else:
+        main_timetable = get_and_update_timetable_cache(
+            session, year, month, day)
 
-    if isinstance(result, list):
-
-        if not isinstance(async_result.get(), str):
+    if isinstance(main_timetable, list):
+        user_book_data = user_book_data.get()
+        if not isinstance(user_book_data, str):
             return error_code.BUS_ERROR
-        # mix cancelKey in timetable
-        user_reservation = json.loads(async_result.get())
-        for bus_data in result:
+        # mix cancelKey and add 'isReserve' in timetable
+        user_reservation = json.loads(user_book_data)
+        for bus_data in main_timetable:
             bus_data['cancelKey'] = ''
-            if bus_data['isReserve']:
-                for reservation_data in user_reservation['data']:
-                    if reservation_data['dateTime'] == bus_data['departureTime']:
-                        bus_data['cancelKey'] = reservation_data['cancelKey']
+            bus_data['isReserve'] = False
+            for reservation_data in user_reservation['data']:
+                if reservation_data['dateTime'] == bus_data['departureTime'] and \
+                        reservation_data['start'] == bus_data['startStation']:
+                    bus_data['isReserve'] = True
+                    bus_data['cancelKey'] = reservation_data['cancelKey']
 
         return_data = {
-            "date": datetime.datetime.utcnow().isoformat(timespec='seconds')+"Z",
-            "data": result
+            "date": datetime.utcnow().isoformat(timespec='seconds')+"Z",
+            "data": main_timetable
         }
-        json_dumps_data = json.dumps(return_data, ensure_ascii=False)
-        red_string.set(
-            name=redis_name,
-            value=json_dumps_data,
-            ex=config.CACHE_BUS_TIMETABLE_EXPIRE_TIME)
-        return json_dumps_data
 
-    elif result == error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER:
+        return json.dumps(return_data, ensure_ascii=False)
+
+    elif main_timetable == error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER:
         # clear user cache cookie
         red_bin.delete('bus_cookie_%s' % username)
+        red_bin.delete(redis_name)
         return error_code.CACHE_BUS_USER_ERROR
     # return error code
-    return result
+    return error_code.BUS_ERROR
 
 
 def bus_reservations_record(username):
