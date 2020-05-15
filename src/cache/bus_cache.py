@@ -1,8 +1,7 @@
-import datetime
 import json
 import pickle
+from datetime import datetime, timedelta
 from multiprocessing.pool import ThreadPool
-
 
 import redis
 import requests
@@ -13,6 +12,7 @@ from utils import config, error_code
 red_string = redis.StrictRedis.from_url(
     url=config.REDIS_URL, db=4, charset="utf-8", decode_responses=True)
 red_bin = redis.StrictRedis.from_url(url=config.REDIS_URL, db=3)
+pool = ThreadPool()
 
 
 def login(username, password):
@@ -245,3 +245,31 @@ def bus_violation(username):
 
     # return error code
     return result
+
+
+def get_and_update_timetable_cache(session: requests.session, year: int, month: int, day: int):
+    "Just update redis bus timetable"
+    redis_name = "bus_timetable_{year}_{month}_{day}".format(
+        year=year,
+        month=month,
+        day=day)
+
+    main_timetable = bus_crawler.query(
+        session=session, year=year, month=month, day=day)
+
+    if isinstance(main_timetable, list):
+        red_string.set(
+            name=redis_name,
+            value=json.dumps(main_timetable, ensure_ascii=False),
+            ex=config.CACHE_BUS_TIMETABLE_EXPIRE_TIME)
+        if isinstance(main_timetable, list) and len(main_timetable) > 0:
+            expire_seconds = ((datetime.strptime(
+                main_timetable[0]['departureTime'], "%Y-%m-%dT%H:%M:%SZ")
+                + timedelta(days=1))-datetime.now()).total_seconds()
+
+            if expire_seconds > 0:
+                red_string.set(
+                    name=redis_name,
+                    value=json.dumps(main_timetable, ensure_ascii=False),
+                    ex=round(expire_seconds))
+        return main_timetable
