@@ -139,10 +139,6 @@ def scores(html):
         detail["average"] = float(total[1][4::]) if not None else 0.0
     except ValueError:
         detail["average"] = 0.0
-    try:
-        detail["classPercentage"] = float(total[3][7:-1]) if not None else 0.0
-    except ValueError:
-        detail["classPercentage"] = 0.0
     res = {
         "scores": scores_list,
         "detail": detail
