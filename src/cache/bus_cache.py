@@ -1,8 +1,7 @@
-import datetime
 import json
 import pickle
+from datetime import datetime, timedelta
 from multiprocessing.pool import ThreadPool
-
 
 import redis
 import requests
@@ -13,6 +12,7 @@ from utils import config, error_code
 red_string = redis.StrictRedis.from_url(
     url=config.REDIS_URL, db=4, charset="utf-8", decode_responses=True)
 red_bin = redis.StrictRedis.from_url(url=config.REDIS_URL, db=3)
+pool = ThreadPool()
 
 
 def login(username, password):
@@ -75,54 +75,50 @@ def bus_query(username, year, month, day):
 
     if not red_bin.exists('bus_cookie_%s' % username):
         return error_code.CACHE_BUS_COOKIE_ERROR
-
-    redis_name = "bus_timetable_{username}_{year}_{month}_{day}".format(
-        username=username,
+    redis_name = "bus_timetable_{year}_{month}_{day}".format(
         year=year,
         month=month,
         day=day)
 
-    if red_string.exists(redis_name):
-        return red_string.get(redis_name)
-
     session = requests.session()
     session.cookies = pickle.loads(red_bin.get('bus_cookie_%s' % username))
-    pool = ThreadPool(processes=1)
-    async_result = pool.apply_async(bus_reservations_record, (username,))
+    user_book_data = pool.apply_async(bus_reservations_record, (username,))
 
-    result = bus_crawler.query(
-        session=session, year=year, month=month, day=day)
+    if red_string.exists(redis_name):
+        main_timetable = json.loads(red_string.get(redis_name))
+    else:
+        main_timetable = get_and_update_timetable_cache(
+            session, year, month, day)
 
-    if isinstance(result, list):
-
-        if not isinstance(async_result.get(), str):
+    if isinstance(main_timetable, list):
+        user_book_data = user_book_data.get()
+        if not isinstance(user_book_data, str):
             return error_code.BUS_ERROR
-        # mix cancelKey in timetable
-        user_reservation = json.loads(async_result.get())
-        for bus_data in result:
+        # mix cancelKey and add 'isReserve' in timetable
+        user_reservation = json.loads(user_book_data)
+        for bus_data in main_timetable:
             bus_data['cancelKey'] = ''
-            if bus_data['isReserve']:
-                for reservation_data in user_reservation['data']:
-                    if reservation_data['dateTime'] == bus_data['departureTime']:
-                        bus_data['cancelKey'] = reservation_data['cancelKey']
+            bus_data['isReserve'] = False
+            for reservation_data in user_reservation['data']:
+                if reservation_data['dateTime'] == bus_data['departureTime'] and \
+                        reservation_data['start'] == bus_data['startStation']:
+                    bus_data['isReserve'] = True
+                    bus_data['cancelKey'] = reservation_data['cancelKey']
 
         return_data = {
-            "date": datetime.datetime.utcnow().isoformat(timespec='seconds')+"Z",
-            "data": result
+            "date": datetime.utcnow().isoformat(timespec='seconds')+"Z",
+            "data": main_timetable
         }
-        json_dumps_data = json.dumps(return_data, ensure_ascii=False)
-        red_string.set(
-            name=redis_name,
-            value=json_dumps_data,
-            ex=config.CACHE_BUS_TIMETABLE_EXPIRE_TIME)
-        return json_dumps_data
 
-    elif result == error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER:
+        return json.dumps(return_data, ensure_ascii=False)
+
+    elif main_timetable == error_code.BUS_USER_WRONG_CAMPUS_OR_NOT_FOUND_USER:
         # clear user cache cookie
         red_bin.delete('bus_cookie_%s' % username)
+        red_bin.delete(redis_name)
         return error_code.CACHE_BUS_USER_ERROR
     # return error code
-    return result
+    return error_code.BUS_ERROR
 
 
 def bus_reservations_record(username):
@@ -193,8 +189,24 @@ def bus_reserve_book(username, kid, action):
     if isinstance(result, dict):
         if result['success']:
             # clear all bus cache, because data changed.
-            for key in red_string.scan_iter('bus_*_{username}*'.format(username=username)):
+            for key in red_string.scan_iter('bus_reservations_{username}*'.format(username=username)):
                 red_string.delete(key)
+            # remake redis user cache
+            pool.apply_async(func=bus_reservations_record, args=(username,))
+            # delete old main timetable
+            if result.get("busTime"):
+                book_time = datetime.fromtimestamp(
+                    int(result.get("busTime"))/1000)
+                for key in red_string.scan_iter(
+                        'bus_timetable_{year}_{month}_{day}'.format(
+                        year=book_time.year,
+                        month=book_time.month,
+                        day=book_time.day)):
+                    red_string.delete(key)
+                # update new main timetable
+                pool.apply_async(func=get_and_update_timetable_cache, args=(
+                    session, book_time.year, book_time.month, book_time.day,))
+
             return result
         else:
             return result
@@ -245,3 +257,31 @@ def bus_violation(username):
 
     # return error code
     return result
+
+
+def get_and_update_timetable_cache(session: requests.session, year: int, month: int, day: int):
+    "Just update redis bus timetable"
+    redis_name = "bus_timetable_{year}_{month}_{day}".format(
+        year=year,
+        month=month,
+        day=day)
+
+    main_timetable = bus_crawler.query(
+        session=session, year=year, month=month, day=day)
+
+    if isinstance(main_timetable, list):
+        red_string.set(
+            name=redis_name,
+            value=json.dumps(main_timetable, ensure_ascii=False),
+            ex=config.CACHE_BUS_TIMETABLE_EXPIRE_TIME)
+        if isinstance(main_timetable, list) and len(main_timetable) > 0:
+            expire_seconds = ((datetime.strptime(
+                main_timetable[0]['departureTime'], "%Y-%m-%dT%H:%M:%SZ")
+                + timedelta(days=1))-datetime.now()).total_seconds()
+
+            if expire_seconds > 0:
+                red_string.set(
+                    name=redis_name,
+                    value=json.dumps(main_timetable, ensure_ascii=False),
+                    ex=round(expire_seconds))
+        return main_timetable
