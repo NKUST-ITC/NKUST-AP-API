@@ -197,12 +197,6 @@ def bus_reserve_book(username, kid, action):
             if result.get("busTime"):
                 book_time = datetime.fromtimestamp(
                     int(result.get("busTime"))/1000)
-                for key in red_string.scan_iter(
-                        'bus_timetable_{year}_{month}_{day}'.format(
-                        year=book_time.year,
-                        month=book_time.month,
-                        day=book_time.day)):
-                    red_string.delete(key)
                 # update new main timetable
                 pool.apply_async(func=get_and_update_timetable_cache, args=(
                     session, book_time.year, book_time.month, book_time.day,))
