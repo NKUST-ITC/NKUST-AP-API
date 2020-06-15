@@ -117,7 +117,7 @@ def get_leave_list(session, year, semester):
         leave_list.append(r)
     result = []
     for r in leave_list[1:]:
-        i = len(r)-15
+        i = len(r)-14
         for approved in range(4, i):
             r[3] += ' , '+r[approved]
         leave = {
