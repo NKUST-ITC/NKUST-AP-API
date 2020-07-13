@@ -6,6 +6,7 @@ import requests
 
 from crawler import library_crawler
 from utils import config, error_code
+from utils.session import get_session
 
 red_string = redis.StrictRedis.from_url(
     url=config.REDIS_URL, db=4, charset="utf-8", decode_responses=True)
@@ -31,7 +32,7 @@ def login(username, password):
     if red_bin.exists('library_cookie_%s' % username):
         return error_code.CACHE_LIBRARY_LOGIN_SUCCESS
 
-    session = requests.session()
+    session = get_session()
 
     login_status = library_crawler.login(
         session=session, username=username, password=password)
@@ -69,7 +70,7 @@ def userinfo(username):
         return red_string.get(redis_name)
 
     # load redis cookie
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('library_cookie_%s' % username))
     user_info = library_crawler.user_info(session=session)
     if isinstance(user_info, dict):
