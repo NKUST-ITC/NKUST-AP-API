@@ -9,6 +9,7 @@ import requests
 from crawler import bus_crawler, webap_crawler
 from utils import config, error_code
 from utils.config import REDIS_URL
+from utils.session import get_session
 
 red_string = redis.StrictRedis.from_url(
     url=REDIS_URL, db=4, charset="utf-8", decode_responses=True)
@@ -34,7 +35,7 @@ def server_status():
     if red_string.exists('server_status'):
         return red_string.get('server_status')
 
-    req_session = requests.session()
+    req_session = get_session()
     pool = ThreadPool(processes=4)
 
     bus_test = pool.apply_async(bus_crawler.login, kwds={
@@ -83,7 +84,7 @@ def server_status():
             },
             {
                 "service": "library",
-                "isAlive": library_test.get()is 100,
+                "isAlive": library_test.get() is 100,
                 "description": "圖書館系統"
             }
         ]

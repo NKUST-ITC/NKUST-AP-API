@@ -1,14 +1,16 @@
 import hashlib
-import pickle
 import json
+import pickle
+
 import redis
 import requests
 
-from crawler import webap_crawler
-from utils import error_code
-from utils import config
-from utils.config import REDIS_URL
+
 from cache import parse
+from crawler import webap_crawler
+from utils import config, error_code
+from utils.config import REDIS_URL
+from utils.session import get_session
 
 red_string = redis.StrictRedis.from_url(
     url=REDIS_URL, db=4, charset="utf-8", decode_responses=True)
@@ -43,7 +45,7 @@ def login(username, password):
             if red_bin.exists('webap_cookie_%s' % username):
                 return error_code.CACHE_WENAP_LOGIN_SUCCESS
 
-    session = requests.session()
+    session = get_session()
 
     login_status = webap_crawler.login(
         session=session, username=username, password=password)
@@ -126,7 +128,7 @@ def graduate_user_info(username):
         return red_string.get(redis_name)
 
     # load redis cookie
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('webap_cookie_%s' % username))
     html = webap_crawler.graduate_user_info(session=session)
     if html is not False:
@@ -168,7 +170,7 @@ def semesters():
                          password=config.AP_GUEST_PASSWORD)
 
     if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
-        session = requests.session()
+        session = get_session()
         # load guest cookie
         session.cookies = pickle.loads(red_bin.get(
             'webap_cookie_%s' % config.AP_GUEST_ACCOUNT))
@@ -273,7 +275,7 @@ def coursetable(username, year, semester):
     if red_string.exists('coursetable_%s_%s_%s' % (username, year, semester)):
         return red_string.get('coursetable_%s_%s_%s' % (username, year, semester))
 
-    session = requests.session()
+    session = get_session()
     # load webap cookie
     session.cookies = pickle.loads(
         red_bin.get('webap_cookie_%s' % username))
@@ -351,7 +353,7 @@ def cache_graduation_threshold(username, password):
     if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
 
         # load user cookie
-        session = requests.session()
+        session = get_session()
         session.cookies = pickle.loads(
             red_bin.get('webap_cookie_%s' % username))
 
@@ -397,7 +399,7 @@ def room_list(campus):
                          password=config.AP_GUEST_PASSWORD)
 
     if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
-        session = requests.session()
+        session = get_session()
         # load guest cookie
         session.cookies = pickle.loads(red_bin.get(
             'webap_cookie_%s' % config.AP_GUEST_ACCOUNT))
@@ -449,7 +451,7 @@ def query_empty_room(room_id, year, semester):
                          password=config.AP_GUEST_PASSWORD)
 
     if login_status == error_code.CACHE_WENAP_LOGIN_SUCCESS:
-        session = requests.session()
+        session = get_session()
 
         # load guest cookie
         session.cookies = pickle.loads(red_bin.get(
@@ -517,7 +519,7 @@ def cache_ap_query(username, qid,
         return red_string.get(redis_name)
 
     # load redis cookie
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('webap_cookie_%s' % username))
 
     res = webap_crawler.query(session=session, qid=qid, **kwargs)
