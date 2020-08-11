@@ -8,6 +8,7 @@ import requests
 
 from crawler import bus_crawler
 from utils import config, error_code
+from utils.session import get_session
 
 red_string = redis.StrictRedis.from_url(
     url=config.REDIS_URL, db=4, charset="utf-8", decode_responses=True)
@@ -36,7 +37,7 @@ def login(username, password):
     if red_bin.exists('bus_cookie_%s' % username):
         return error_code.CACHE_BUS_LOGIN_SUCCESS
 
-    session = requests.session()
+    session = get_session()
 
     login_status = bus_crawler.login(
         session=session, username=username, password=password)
@@ -80,7 +81,7 @@ def bus_query(username, year, month, day):
         month=month,
         day=day)
 
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('bus_cookie_%s' % username))
     user_book_data = pool.apply_async(bus_reservations_record, (username,))
 
@@ -142,7 +143,7 @@ def bus_reservations_record(username):
     if red_string.exists(redis_name):
         return red_string.get(redis_name)
 
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('bus_cookie_%s' % username))
     result = bus_crawler.reserve(
         session=session)
@@ -182,7 +183,7 @@ def bus_reserve_book(username, kid, action):
     if not red_bin.exists('bus_cookie_%s' % username):
         return error_code.CACHE_BUS_COOKIE_ERROR
 
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('bus_cookie_%s' % username))
     result = bus_crawler.book(session=session, kid=kid, action=action)
 
@@ -197,12 +198,6 @@ def bus_reserve_book(username, kid, action):
             if result.get("busTime"):
                 book_time = datetime.fromtimestamp(
                     int(result.get("busTime"))/1000)
-                for key in red_string.scan_iter(
-                        'bus_timetable_{year}_{month}_{day}'.format(
-                        year=book_time.year,
-                        month=book_time.month,
-                        day=book_time.day)):
-                    red_string.delete(key)
                 # update new main timetable
                 pool.apply_async(func=get_and_update_timetable_cache, args=(
                     session, book_time.year, book_time.month, book_time.day,))
@@ -240,7 +235,7 @@ def bus_violation(username):
     if red_string.exists(redis_name):
         return red_string.get(redis_name)
 
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('bus_cookie_%s' % username))
     result = bus_crawler.get_violation_records(session=session)
 

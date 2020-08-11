@@ -116,9 +116,12 @@ def get_leave_list(session, year, semester):
 
         leave_list.append(r)
     result = []
+    if len(leave_list) > 1:
+        # count section length.
+        section_len = len(leave_list[1])-len(leave_list[1][4:])
     for r in leave_list[1:]:
-        i = len(r)-15
-        for approved in range(4, i):
+        for approved in range(4, section_len):
+            # merge approved content in special cases.
             r[3] += ' , '+r[approved]
         leave = {
             "leaveSheetId": r[1].replace("\xa0", ""),
@@ -126,7 +129,7 @@ def get_leave_list(session, year, semester):
             "instructorsComment": r[3],
             "sections": [
                 {"section": leave_list[0][index + 4], "reason": s}
-                for index, s in enumerate(r[i:])
+                for index, s in enumerate(r[section_len:])
             ]
         }
 

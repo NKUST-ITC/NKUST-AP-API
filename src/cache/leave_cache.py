@@ -8,6 +8,7 @@ import requests
 
 from crawler import leave_crawler
 from utils import config, error_code
+from utils.session import get_session
 
 red_string = redis.StrictRedis.from_url(
     url=config.REDIS_URL, db=4, charset="utf-8", decode_responses=True)
@@ -31,7 +32,7 @@ def login(username, password):
     if red_bin.exists('leave_cookie_%s' % username):
         return error_code.CACHE_LEAVE_LOGIN_SUCCESS
 
-    session = requests.session()
+    session = get_session()
 
     login_status = leave_crawler.login(
         session=session, username=username, password=password)
@@ -69,7 +70,7 @@ def get_leave_list(username, year, semester):
     if red_string.exists(redis_name):
         return red_string.get(redis_name)
 
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('leave_cookie_%s' % username))
 
     list_data = leave_crawler.get_leave_list(
@@ -106,7 +107,7 @@ def get_submit_info(username):
     if red_string.exists(redis_name):
         return red_string.get(redis_name)
 
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('leave_cookie_%s' % username))
 
     data = leave_crawler.get_submit_info(
@@ -144,7 +145,7 @@ def submit_leave(username, leave_data, leave_proof):
         LEAVE_SUBMIT_ERROR = 814
     """
 
-    session = requests.session()
+    session = get_session()
     session.cookies = pickle.loads(red_bin.get('leave_cookie_%s' % username))
     # --format input data--
     leave_data['days'] = sorted(
