@@ -7,8 +7,6 @@ COPY . /usr/src/app
 
 RUN pip3 install -r ./requirements.txt
 
-RUN apt-get update && \
-    apt-get install -y nodejs
 
 WORKDIR src
 

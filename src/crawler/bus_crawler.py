@@ -2,14 +2,11 @@ import datetime
 import json
 import re
 
-import execjs
 import pytz
 import requests
 
 from utils import config, error_code
-
-with open('crawler/bus.js', 'r') as bus_read:
-    js_function = bus_read.read()
+from crawler import bus_encypt
 
 # Bus url setting
 BUS_URL = "http://bus.kuas.edu.tw"
@@ -24,15 +21,6 @@ BUS_FINE_URL = BUS_API_URL + "Illegals/getOwn"
 
 # Bus timeout setting
 BUS_TIMEOUT = 4.0
-
-
-def js_init(session):
-    session.head(BUS_URL)
-    script_content = session.get(BUS_SCRIPT_URL).text
-
-    js = execjs.compile(js_function + script_content)
-
-    return js
 
 
 def _get_real_time(timestamp):
@@ -59,8 +47,12 @@ def login(session, username, password):
     data = {'account': username, 'password': password}
 
     try:
-        js = js_init(session)
-        data['n'] = js.call('loginEncryption', str(username), str(password))
+        # Get host cookie.
+        session.head(BUS_URL)
+        # Get dynamic js
+        js = bus_encypt.enc_function(js_code=session.get(BUS_SCRIPT_URL).text)
+        # Encrypt
+        data['n'] = js.encrypt(str(username), str(password))
     except Exception as e:
         print(e)
         return error_code.BUS_JS_ERROR
