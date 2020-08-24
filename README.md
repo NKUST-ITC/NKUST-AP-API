@@ -15,7 +15,6 @@ Requirement
 - Ubuntu (18.04 or previous version)
 - Python 3.6
 - Redis server
-- NodeJS (if host by python venv)
 
 ### [API Docs](https://nkust-itc.github.io/NKUST-AP-API/docs/api-page.html)
 
