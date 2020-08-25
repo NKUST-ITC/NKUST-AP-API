@@ -12,14 +12,7 @@ def md5(data):
 def str_find_last_index(content, target_string):
     if target_string is None:
         return -1
-    index = -1
-    res = 0
-    while res != -1:
-        res = content.find(target_string, res)
-        if res != -1:
-            index = res
-            res += 1
-    return index
+    return content.rindex(target_string)
 
 
 class enc_function:
