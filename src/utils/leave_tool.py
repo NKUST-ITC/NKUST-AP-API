@@ -25,7 +25,12 @@ def teacher_list(username, password, campus_id):
     sp = soup.find_all('input')
     form_data = {i.get('name'): i.get('value')
                  for i in sp if i.get('name') not in ["ctl00$ButtonLogOut", 'ctl00$ContentPlaceHolder1$CK001$ButtonQuery', 'ctl00$ContentPlaceHolder1$CK001$ButtonClear', 'ctl00$ContentPlaceHolder1$CK001$ButtonPreview']}
-    fake_date = '108/09/21'
+    fake_date = "{term_years}/{moutns}/{days}".format(
+        term_years=datetime.datetime.now().year-1911,
+        moutns=str(datetime.datetime.now().month).zfill(2),
+        days=str(datetime.datetime.now().day).zfill(2)
+    )
+
     form_data['ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1'] = fake_date
     form_data['ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1'] = fake_date
 
