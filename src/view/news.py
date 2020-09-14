@@ -6,6 +6,7 @@ import redis
 
 from auth import jwt_auth
 from cache import school_announcements_cache as sac_cache
+from crawler import inkust_crawler
 from news import news
 from utils import config, error_code, util
 from utils.util import (falcon_admin_required, max_body,
@@ -13,6 +14,55 @@ from utils.util import (falcon_admin_required, max_body,
 
 red_auth_token = redis.StrictRedis.from_url(
     url=config.REDIS_URL, db=6, charset="utf-8", decode_responses=True)
+
+
+class newsAdminLoginWithiNkust:
+    auth = {
+        'exempt_methods': ['POST']
+    }
+
+    @falcon.before(max_body(64 * 1024))
+    def on_post(self, req, resp):
+
+        req_json = json.loads(req.bounded_stream.read(), encoding='utf-8')
+        # check json key
+        for key in req_json.keys():
+            if key not in ['username', 'password']:
+                # return status code 406  not acceptable
+                raise falcon.HTTPNotAcceptable(falcon.HTTP_NOT_ACCEPTABLE)
+        
+        if req_json['username'] not in config.NEWS_ADMIN:
+            raise falcon.HTTPUnauthorized()
+        if inkust_crawler.login(username=req_json['username'], password=req_json['password']) is False:
+            raise falcon.HTTPUnauthorized()
+
+        
+        token = util.randStr(32)
+        req_json['token'] = token
+        red_auth_token.set(
+            name="{username}_{token}".format(
+                username=req_json['username'],
+                token=token),
+            value='',
+            ex=config.ADMIN_JWT_EXPIRE_TIME)
+        JWT_token = jwt_auth.get_auth_token(user_payload=req_json)
+        resp.media = {
+            'token': JWT_token,
+            'expireTime': (datetime.datetime.utcnow() + datetime.timedelta(seconds=config.ADMIN_JWT_EXPIRE_TIME)).isoformat(timespec='seconds')+"Z"
+        }
+        resp.media['isAdmin'] = True
+
+        resp.status = falcon.HTTP_200
+        return True
+
+    def on_delete(self, req, resp):
+
+        payload = req.context['user']['user']
+        redis_token_name = "{username}_{token}".format(
+            username=payload['username'],
+            token=payload['token'])
+        red_auth_token.delete(redis_token_name)
+        resp.status = falcon.HTTP_205
 
 
 class newsAdminLogin:
