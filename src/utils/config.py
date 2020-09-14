@@ -13,6 +13,11 @@ except KeyError:
     NEWS_ADMIN = []
 
 try:
+    LOGIN_API_KEY = os.environ['LOGIN_API_KEY']
+except KeyError:
+    LOGIN_API_KEY = []
+
+try:
     NEWS_ADMIN_ACCOUNT = os.environ['NEWS_ADMIN_ACCOUNT']
     NEWS_ADMIN_PASSWORD = os.environ['NEWS_ADMIN_PASSWORD']
 except KeyError:
