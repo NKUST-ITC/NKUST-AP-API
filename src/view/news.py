@@ -30,13 +30,14 @@ class newsAdminLoginWithiNkust:
             if key not in ['username', 'password']:
                 # return status code 406  not acceptable
                 raise falcon.HTTPNotAcceptable(falcon.HTTP_NOT_ACCEPTABLE)
-        
-        if req_json['username'] not in config.NEWS_ADMIN:
-            raise falcon.HTTPUnauthorized()
-        if inkust_crawler.login(username=req_json['username'], password=req_json['password']) is False:
-            raise falcon.HTTPUnauthorized()
 
-        
+        if req_json['username'] not in config.NEWS_ADMIN:
+            raise falcon.HTTPUnauthorized(description="Not in admin list.")
+        if config.LOGIN_API_KEY == [] or len(config.LOGIN_API_KEY) < 5 or config.LOGIN_API_KEY is None:
+            raise falcon.HTTPUnauthorized(description="Loss api keys.")
+        if inkust_crawler.login(username=req_json['username'], password=req_json['password']) is False:
+            raise falcon.HTTPUnauthorized(description="inkust login fail.")
+
         token = util.randStr(32)
         req_json['token'] = token
         red_auth_token.set(

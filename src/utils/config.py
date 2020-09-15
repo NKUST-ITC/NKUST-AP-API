@@ -15,7 +15,7 @@ except KeyError:
 try:
     LOGIN_API_KEY = os.environ['LOGIN_API_KEY']
 except KeyError:
-    LOGIN_API_KEY = []
+    LOGIN_API_KEY = None
 
 try:
     NEWS_ADMIN_ACCOUNT = os.environ['NEWS_ADMIN_ACCOUNT']
