@@ -4,7 +4,7 @@ falcon==2.0.0
 falcon-auth==1.1.0
 gunicorn>=19.9.0
 idna==2.8
-lxml==4.6.2
+lxml==4.6.3
 PyJWT==1.7.1
 redis==3.2.1
 requests==2.22.0
